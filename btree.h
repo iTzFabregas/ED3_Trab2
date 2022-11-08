@@ -3,7 +3,7 @@
 
 #include "register.h"
 
-#define LEN_BTHEADER 73
+#define LEN_PAGDISC 73
 
 //define a estrutura do cabecalho
 typedef struct{
@@ -20,8 +20,8 @@ typedef struct{
 } Key;
 
 typedef struct{
-    No* p[5];
-    Key* key[4];
+    No* p[5]; // ponteiros
+    Key* key[4]; // chaves
 
     char folha;
     int nroChavesNo;
@@ -29,20 +29,20 @@ typedef struct{
     int RRNdoNo;
 } No;
 
+// criação e liberação do header
 BTHeader* create_btheader();
-
 void release_btheader(BTHeader* header);
 
+// leitura e escrita no header
 int read_btheader(BTHeader* header, FILE* file);
-
 void write_btheader(FILE* file, BTHeader* header);
 
+// criação e liberação da chave
 Key* create_key();
-
 void release_key(Key* key);
 
+// criação e liberação do nó
 No* create_no();
-
 void release_no(No* no);
 
 #endif

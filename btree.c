@@ -77,3 +77,16 @@ void release_no(No* no){
     free(no);
     no = NULL;
 }
+
+// PESQUISA do 'X'
+/**
+ * Olhar o nó raiz
+ * Ver se o X está ali, compara com as chaves
+ * Ver pelas chaves qual ponteiro deve-se pegar
+ * Ver se algumas dessas novas chaves são iguais a X
+ * Pegar um novo ponteiro
+ * 
+ * Fazer isso até achar uma chave igual X 
+ * OU
+ * Pegar um ponteiro que aponta para NULO
+*/
