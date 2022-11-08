@@ -23,7 +23,7 @@ void release_btheader(BTHeader* header){
 }
 
 //le os campos do cabecalho
-int read_btheader(BTHeader* header, FILE* file){
+int read_btheader( FILE* file, BTHeader* header){
     fread(&header->status, sizeof(char), 1, file);
     if(header->status == '0'){
         error_file();
@@ -54,6 +54,26 @@ void write_btheader(FILE* file, BTHeader* header) {
     }
 }
 
+int read_node(FILE* file, No* node) {
+
+}
+
+void write_node(FILE* file, No* node) {
+    fwrite(&node->folha, LEN_FOLHA, 1, file);
+    fwrite(&node->nroChavesNo, LEN_NROCHAVESNO, 1, file);
+    fwrite(&node->alturaNo, LEN_ALTURANO, 1, file);
+    fwrite(&node->RRNdoNo, LEN_RRNDONO, 1, file);
+    for (size_t i = 0; i < 5; i++)
+    {
+        fwrite(&node->ponteiro[i], LEN_PONTEIRO, 1, file);
+        if (i != 4) {
+            fwrite(&node->key[i]->search_key, LEN_SEARCHKEY, 1, file);
+            fwrite(&node->key[i]->RRN_key, LEN_RRN_KEY, 1, file);
+        }
+    }
+    
+}
+
 Key* create_key(){
 
     Key* key = malloc(sizeof(Key));
@@ -77,11 +97,11 @@ No* create_no(){
 
     for (size_t i = 0; i < 5; i++)
     {
-        no->p[i] = malloc(sizeof(No*));
-        no->p[i] = NULL;
+        no->ponteiro[i] = -1;
         if (i != 4) {
             no->key[i] = malloc(sizeof(Key*));
-            no->key[i] = NULL;
+            no->key[i]->search_key = -1;
+            no->key[i]->RRN_key = -1;
         }
     }
 
@@ -89,14 +109,10 @@ No* create_no(){
 }
 
 void release_no(No* no){
-    for (size_t i = 0; i < 5; i++)
-    {
-        free(no->p[i]);
-        no->p[i] = NULL;
-        if (i != 4) {
-            free(no->key[i]);
-            no->key[i] = NULL;
-        }
+
+    for (size_t i = 0; i < 4; i++) {
+        free(no->key[i]);
+        no->key[i] = NULL;
     }
     free(no);
     no = NULL;

@@ -5,6 +5,15 @@
 
 #define LEN_PAGDISC 73
 
+//defines tamanho no
+#define LEN_FOLHA 1
+#define LEN_NROCHAVESNO 4
+#define LEN_ALTURANO 4
+#define LEN_RRNDONO 4
+#define LEN_PONTEIRO 4
+#define LEN_SEARCHKEY 4
+#define LEN_RRN_KEY 4
+
 //define a estrutura do cabecalho
 typedef struct{
     char status;
@@ -20,7 +29,7 @@ typedef struct{
 } Key;
 
 typedef struct{
-    No* p[5]; // ponteiros
+    int ponteiro[5]; // RRN para outros nos
     Key* key[4]; // chaves
 
     char folha;
@@ -39,7 +48,7 @@ void write_btheader(FILE* file, BTHeader* header);
 
 // leitura e escrita do no
 int read_node(FILE* file, No* node);
-int write_node(FILE* file, No* node);
+void write_node(FILE* file, No* node);
 
 // criação e liberação da chave
 Key* create_key();
