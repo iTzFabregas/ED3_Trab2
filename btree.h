@@ -15,8 +15,8 @@ typedef struct{
 } BTHeader;
 
 typedef struct{
-    int search_key;
-    Data_reg* pr;
+    int search_key; // IdConecta
+    int RRN_key; // RRN no arquivo de dados que essa chave esta localizada
 } Key;
 
 typedef struct{
@@ -33,9 +33,13 @@ typedef struct{
 BTHeader* create_btheader();
 void release_btheader(BTHeader* header);
 
-// leitura e escrita no header
-int read_btheader(BTHeader* header, FILE* file);
+// leitura e escrita do header
+int read_btheader(FILE* file, BTHeader* header);
 void write_btheader(FILE* file, BTHeader* header);
+
+// leitura e escrita do no
+int read_node(FILE* file, No* node);
+int write_node(FILE* file, No* node);
 
 // criação e liberação da chave
 Key* create_key();

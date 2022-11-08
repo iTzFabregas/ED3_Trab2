@@ -3,7 +3,7 @@ Fabricio Sampaio [runcodes] - 12547423 - participacao: 100%
 Pedro Lucas Castro de Andrade - 11212289 - participacao: 100%
 */
 
-#include<stdio.h>
+#include <stdio.h>
 
 //#include "command7.h"
 //#include "command8.h"

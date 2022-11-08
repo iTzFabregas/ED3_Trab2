@@ -1,7 +1,7 @@
 #ifndef __REGISTER_H__
 #define __REGISTER_H__
 
-#include<stdio.h>
+#include <stdio.h>
 
 //macros sobre o arquivo
 #define LEN_DISC_PAG 960

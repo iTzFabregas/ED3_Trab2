@@ -55,8 +55,11 @@ void write_btheader(FILE* file, BTHeader* header) {
 }
 
 Key* create_key(){
-    Key* key = malloc(sizeof(Key));
 
+    Key* key = malloc(sizeof(Key));
+    key->search_key = -1;
+    key->RRN_key = -1;
+    
     return key;
 }
 
@@ -69,11 +72,32 @@ No* create_no(){
     No* no = malloc(sizeof(No));
     no->nroChavesNo = 0;
     no->alturaNo = 0;
+    // folha
+    // RRn do no
+
+    for (size_t i = 0; i < 5; i++)
+    {
+        no->p[i] = malloc(sizeof(No*));
+        no->p[i] = NULL;
+        if (i != 4) {
+            no->key[i] = malloc(sizeof(Key*));
+            no->key[i] = NULL;
+        }
+    }
 
     return no;
 }
 
 void release_no(No* no){
+    for (size_t i = 0; i < 5; i++)
+    {
+        free(no->p[i]);
+        no->p[i] = NULL;
+        if (i != 4) {
+            free(no->key[i]);
+            no->key[i] = NULL;
+        }
+    }
     free(no);
     no = NULL;
 }
@@ -90,3 +114,4 @@ void release_no(No* no){
  * OU
  * Pegar um ponteiro que aponta para NULO
 */
+

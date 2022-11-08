@@ -1,4 +1,4 @@
-#include<stdio.h>
+#include <stdio.h>
 
 //macros importantes para modo de abrir um arquivo
 #define FILE_READB 0
