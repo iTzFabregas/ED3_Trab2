@@ -7,7 +7,7 @@
 #include "register.h"
 #include "print_msg.h"
 
-#define LEN_PAGDISC 73
+#define LEN_PAGDISC 64
 
 //defines de tamanhos bastante usados
 #define LEN_FOLHA 1

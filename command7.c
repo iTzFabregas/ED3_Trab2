@@ -7,6 +7,50 @@
 
 #include "command7.h"
 
+void recursive_next_node(FILE* index_file, Node* node, Data_reg* data) {
+
+    if (node->folha == '1') { // né ???
+        return;
+    }
+
+    for (size_t i = 0; i < 4; i++) {
+
+        if (data->idConecta > node->key[i]->search_key && i != 3) {
+            continue;
+        }
+        if (node->ponteiro[i] != -1) {
+            fseek(index_file, ((node->ponteiro[i]*LEN_PAGDISC) + LEN_PAGDISC), SEEK_SET);
+            read_node(index_file, node);
+            recursive_next_node(index_file, node, data);
+            break;
+        }
+    }
+    return;
+}
+
+void shift_keys_node(Data_reg* data, Node* node, int j) {
+
+    for (size_t i = 2; i <= j; i++) {
+        node->key[i + 1] = node->key[i];
+    }  
+}
+
+void recursive_spliting(FILE* file, Node* node, Data_reg* data) {
+    // descobrir qual o termo do meio
+    // cria um novo nó para alocar as 2 maiores chaves
+    // nesse node atual, vai ficar as 2 menores chaves
+    // a chave mediana sobe na árvore (necessário manter o RRN do no pai em registro)
+    // ver se cabe ele nesse no (chaves !-= 4)
+    // se couber, colocar ele na ordem e return
+    // se nao, chamar a função recursive_spliting
+}
+
+
+// colocar 3 /// aparece
+/// @brief 
+/// @param data_name 
+/// @param index_name 
+/// @return 
 int command7(char* data_name, char* index_name) {
 
     // abrindo arquivo de dados
@@ -51,10 +95,41 @@ int command7(char* data_name, char* index_name) {
 
     // criando e escrevendo o header do arquivo de index
     BTHeader* ind_header = create_btheader();
-    ind_header->noRaiz = 0;
+    ind_header->noRaiz = 0; // ignorando o header
     ind_header->nroChavesTotal++;
     write_btheader(index_file, ind_header);
     write_node(index_file, node);
+
+    for (size_t i = 0; i < reg_header->proxRRN; i++) {   
+        if(!read_register(data_file, data)) { // se o registro tiver deletado
+            continue;
+        }
+
+        fseek(index_file, ((ind_header->noRaiz*LEN_PAGDISC) + LEN_PAGDISC), SEEK_SET); // vai para a raiz
+        read_node(index_file, node);
+
+        recursive_next_node(index_file, node, data); // quando retornar, o node tera a folha na qual a chave melhor se encaixa
+        
+        if (node->nroChavesNo == 4) {
+            // TO DO SPLIT
+        } else {
+            for (size_t j = 0; j < 4; j++) {
+                if (data->idConecta > node->key[j]->search_key) {
+                    continue;
+                } else {
+                    shift_keys_node(data, node, j);
+                }
+            }
+            
+        }
+
+    }
+    
+
+
+
+
+
 
 
     // colocando 1 no status e fechando o arquivo
