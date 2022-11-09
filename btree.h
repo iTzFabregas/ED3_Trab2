@@ -62,7 +62,7 @@ Key* create_key();
 void release_key(Key* key);
 
 // criação e liberação do nó
-No* create_node();
+Node* create_node();
 void release_node(Node* node);
 
 #endif

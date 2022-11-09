@@ -9,16 +9,20 @@
 
 int command7(char* data_name, char* index_name) {
 
-    FILE* data_file = fopen(data_name, "rb");
+    // abrindo arquivo de dados
+    FILE* data_file = fopen(data_name, "rb"); // problema na funçao de abrir arquivo TO DO
     if (data_file == NULL) {
         return 0;
     }
 
+    // abrindo arquivo de indices
     FILE* index_file = fopen(index_name, "wb+");
     if (index_file == NULL) {
         return 0;
     }
     
+
+    // lendo header do arquivo de dados
     Header_reg* reg_header = malloc(sizeof(Header_reg));
     read_header(reg_header, data_file);
 
@@ -28,12 +32,15 @@ int command7(char* data_name, char* index_name) {
      * PROX_RRN = 0
     */
 
+
+   // lendo o primeiro registro dos dados
     Data_reg* data = malloc(sizeof(Data_reg));
     fseek(data_file, LEN_DISC_PAG, SEEK_SET);
     read_register(data_file, data);
 
-    // no raiz
-    No* node = create_no();
+
+    // colocando esse registro lido como raiz
+    Node* node = create_node();
     node->folha = '1'; // nao tem filhos
     node->nroChavesNo++; // vai ter uma chave
     node->alturaNo = 0; // ta na parte mais baixo da arvore
@@ -42,24 +49,25 @@ int command7(char* data_name, char* index_name) {
     node->key[0]->RRN_key = 0; // RRN dessa chave no arquivo de dados
 
 
-    BTHeader* header = create_btheader();
-    header->noRaiz = 0;
-    header->nroChavesTotal++;
-    write_btheader(index_file, header);
+    // criando e escrevendo o header do arquivo de index
+    BTHeader* ind_header = create_btheader();
+    ind_header->noRaiz = 0;
+    ind_header->nroChavesTotal++;
+    write_btheader(index_file, ind_header);
     write_node(index_file, node);
 
-    header->status = '1';
-    update_btheader(index_file, header);
 
+    // colocando 1 no status e fechando o arquivo
+    ind_header->status = '1';
+    update_btheader(index_file, ind_header);
 
-    free(data);
-    release_btheader(header);
-    release_no(node);
     fclose(data_file);
     fclose(index_file);
 
-
-   
+    free(reg_header);
+    free(data);
+    release_node(node);
+    release_btheader(ind_header);
 
     return 1;
 }
