@@ -7,10 +7,17 @@
 
 #include "command7.h"
 
-int command7(char data_name[], char index_name[]) {
+int command7(char* data_name, char* index_name) {
 
-    FILE* data_file = open_file(data_name, FILE_READB);
-    FILE* index_file = open_file(index_file, FILE_READWRITEB);
+    FILE* data_file = fopen(data_name, "rb");
+    if (data_file == NULL) {
+        return 0;
+    }
+
+    FILE* index_file = fopen(index_name, "wb+");
+    if (index_file == NULL) {
+        return 0;
+    }
     
     Header_reg* reg_header = malloc(sizeof(Header_reg));
     read_header(reg_header, data_file);
@@ -22,7 +29,7 @@ int command7(char data_name[], char index_name[]) {
     */
 
     Data_reg* data = malloc(sizeof(Data_reg));
-    fseek(data_file, LEN_PAGDISC, SEEK_SET);
+    fseek(data_file, LEN_DISC_PAG, SEEK_SET);
     read_register(data_file, data);
 
     // no raiz
@@ -39,9 +46,17 @@ int command7(char data_name[], char index_name[]) {
     header->noRaiz = 0;
     header->nroChavesTotal++;
     write_btheader(index_file, header);
+    write_node(index_file, node);
 
-    
+    header->status = '1';
+    update_btheader(index_file, header);
 
+
+    free(data);
+    release_btheader(header);
+    release_no(node);
+    fclose(data_file);
+    fclose(index_file);
 
 
    

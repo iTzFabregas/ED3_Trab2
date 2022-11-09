@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "btree.h"
-#include "print_msg.h"
 
 //aloca memoria e inicializa variaveis para o cabecalho
 BTHeader* create_btheader(){
@@ -22,6 +18,7 @@ void release_btheader(BTHeader* header){
     header = NULL;
 }
 
+
 //le os campos do cabecalho
 int read_btheader( FILE* file, BTHeader* header){
     fread(&header->status, sizeof(char), 1, file);
@@ -35,7 +32,7 @@ int read_btheader( FILE* file, BTHeader* header){
     fread(&header->alturaArvore, sizeof(int), 1, file);
     fread(&header->RRNproxNo, sizeof(int), 1, file);
 
-    fseek(file, 56, SEEK_CUR); //pula o lixo
+    fseek(file, 49, SEEK_CUR); //pula o lixo
 
     return 1; //sucesso
 }
@@ -44,21 +41,44 @@ int read_btheader( FILE* file, BTHeader* header){
 void write_btheader(FILE* file, BTHeader* header) {
     fseek(file, 0, SEEK_SET);
 
+    fwrite(&header->status, sizeof(char), 1, file);
     fwrite(&header->noRaiz, sizeof(int), 1, file);
     fwrite(&header->nroChavesTotal, sizeof(int), 1, file);
     fwrite(&header->alturaArvore, sizeof(int), 1, file);
     fwrite(&header->RRNproxNo, sizeof(int), 1, file);
     char garbage = GARBAGE;
-    for(size_t i = 0; i < 56; i++){
+    for(size_t i = 0; i < 49; i++){
         fwrite(&garbage, sizeof(char), 1, file);
     }
 }
 
-int read_node(FILE* file, No* node) {
+void update_btheader(FILE* file, BTHeader* header) {
+    fseek(file, 0, SEEK_SET);
 
+    fwrite(&header->status, sizeof(char), 1, file);
+    fwrite(&header->noRaiz, sizeof(int), 1, file);
+    fwrite(&header->nroChavesTotal, sizeof(int), 1, file);
+    fwrite(&header->alturaArvore, sizeof(int), 1, file);
+    fwrite(&header->RRNproxNo, sizeof(int), 1, file);
 }
 
-void write_node(FILE* file, No* node) {
+
+int read_node(FILE* file, Node* node) { // verificar se funciona
+    fread(&node->folha, LEN_FOLHA, 1, file);
+    fread(&node->nroChavesNo, LEN_NROCHAVESNO, 1, file);
+    fread(&node->alturaNo, LEN_ALTURANO, 1, file);
+    fread(&node->RRNdoNo, LEN_RRNDONO, 1, file);
+    for (size_t i = 0; i < 5; i++)
+    {
+        fread(&node->ponteiro[i], LEN_PONTEIRO, 1, file);
+        if (i != 4) {
+            fread(&node->key[i]->search_key, LEN_SEARCHKEY, 1, file);
+            fread(&node->key[i]->RRN_key, LEN_RRN_KEY, 1, file);
+        }
+    }
+}
+
+void write_node(FILE* file, Node* node) {
     fwrite(&node->folha, LEN_FOLHA, 1, file);
     fwrite(&node->nroChavesNo, LEN_NROCHAVESNO, 1, file);
     fwrite(&node->alturaNo, LEN_ALTURANO, 1, file);
@@ -74,6 +94,7 @@ void write_node(FILE* file, No* node) {
     
 }
 
+
 Key* create_key(){
 
     Key* key = malloc(sizeof(Key));
@@ -88,34 +109,35 @@ void release_key(Key* key){
     key = NULL;
 }
 
-No* create_no(){
-    No* no = malloc(sizeof(No));
-    no->nroChavesNo = 0;
-    no->alturaNo = 0;
+
+Node* create_node(){
+    Node* node= malloc(sizeof(Node));
+    node->nroChavesNo = 0;
+    node->alturaNo = 0;
     // folha
     // RRn do no
 
     for (size_t i = 0; i < 5; i++)
     {
-        no->ponteiro[i] = -1;
+        node->ponteiro[i] = -1;
         if (i != 4) {
-            no->key[i] = malloc(sizeof(Key*));
-            no->key[i]->search_key = -1;
-            no->key[i]->RRN_key = -1;
+            node->key[i] = malloc(sizeof(Key*));
+            node->key[i]->search_key = -1;
+            node->key[i]->RRN_key = -1;
         }
     }
 
-    return no;
+    return node;
 }
 
-void release_no(No* no){
+void release_node(Node* node){
 
     for (size_t i = 0; i < 4; i++) {
-        free(no->key[i]);
-        no->key[i] = NULL;
+        free(node->key[i]);
+        node->key[i] = NULL;
     }
-    free(no);
-    no = NULL;
+    free(node);
+    node = NULL;
 }
 
 // PESQUISA do 'X'

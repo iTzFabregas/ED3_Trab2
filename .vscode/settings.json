@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.c": "c",
-        "register.h": "c"
+        "register.h": "c",
+        "btree.h": "c"
     }
 }
