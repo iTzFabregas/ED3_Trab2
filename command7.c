@@ -43,6 +43,7 @@ void recursive_spliting(FILE* file, Node* node, Data_reg* data) {
     // ver se cabe ele nesse no (chaves !-= 4)
     // se couber, colocar ele na ordem e return
     // se nao, chamar a função recursive_spliting
+    
 }
 
 
@@ -81,7 +82,6 @@ int command7(char* data_name, char* index_name) {
     Data_reg* data = malloc(sizeof(Data_reg));
     fseek(data_file, LEN_DISC_PAG, SEEK_SET);
     read_register(data_file, data);
-
 
     // colocando esse registro lido como raiz
     Node* node = create_node();
