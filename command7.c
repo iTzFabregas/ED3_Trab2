@@ -94,9 +94,11 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key) {
         promo_key = key;
         return DO_PROMOTION;
     } else {
+        printf("2\n");
         Node* node = create_node();
         fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
         read_node(file, node);
+        
 
         int pos;
         for (size_t i = 0; i < 4; i++)
@@ -109,12 +111,16 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key) {
                 pos = i;
             }
         }
+        printf("3\n");
 
         int return_value = insert(file, node->ponteiro[pos], key, promo_key);
-
+        printf("%d\n", node->nroChavesNo);
         if (return_value == EXIT, return_value == NO_PROMOTION) {
+            printf("4.1\n");
             return return_value;
+
         } else if (node->nroChavesNo < 4) {
+            printf("5\n");
             // insert P_B_KEY and P_B_RRN in PAGE
             if (node->key[pos]->search_key == -1) {
                 node->key[pos] = key;
@@ -127,6 +133,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key) {
 
             return NO_PROMOTION;
         } else {
+            printf("5.1\n");
             Node* new_node = split(key, node, promo_key);
 
             fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
@@ -190,7 +197,7 @@ int command7(char* data_name, char* index_name) {
     fseek(data_file, LEN_DISC_PAG, SEEK_SET);
     read_register(data_file, data);
 
-    // colocando esse registro lido como raiz
+    // colocando esse primeiro registro lido como raiz
     Node* node = create_node();
     node->folha = '1'; // nao tem filhos
     node->nroChavesNo++; // vai ter uma chave
@@ -206,28 +213,33 @@ int command7(char* data_name, char* index_name) {
     write_btheader(index_file, ind_header);
     write_node(index_file, node);
 
-    for (size_t i = 1; i < reg_header->proxRRN; i++) {   
+    for (size_t i = 1; i < reg_header->proxRRN; i++) {
+        fseek(data_file, LEN_DISC_PAG+(LEN_REG*i), SEEK_SET); 
         if(!read_register(data_file, data)) { // se o registro tiver deletado
             continue;
         }
         data_key->search_key = data->idConecta;
         data_key->RRN_key = i;
-
-        if (insert(index_file, ind_header->noRaiz, data_key, NULL) == 2) { // 2 IGUAL PROMOTION
-
+        printf("%d - ", data_key->search_key);
+        printf("1\n");
+        if (insert(index_file, ind_header->noRaiz, data_key, NULL) == DO_PROMOTION) {
+        printf("6\n");
         }
 
     }
-
+    printf("7\n");
     // colocando 1 no status e fechando o arquivo
     ind_header->status = '1';
     update_btheader(index_file, ind_header);
 
+    printf("8\n");
     fclose(data_file);
     fclose(index_file);
 
+    printf("9\n");
     free(reg_header);
     free(data);
+    printf("10\n");
     release_key(data_key);
     release_node(node);
     release_btheader(ind_header);

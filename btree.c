@@ -47,7 +47,7 @@ void write_btheader(FILE* file, BTHeader* header) {
     fwrite(&header->alturaArvore, sizeof(int), 1, file);
     fwrite(&header->RRNproxNo, sizeof(int), 1, file);
     char garbage = GARBAGE;
-    for(size_t i = 0; i < 49; i++){
+    for(size_t i = 0; i < 48; i++){
         fwrite(&garbage, sizeof(char), 1, file);
     }
 }
