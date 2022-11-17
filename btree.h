@@ -5,11 +5,14 @@
 #include <stdlib.h>
 
 #include "register.h"
-#include "print_msg.h"
 
-#define LEN_PAGDISC 64
+#define DO_PROMOTION 2
+#define NO_PROMOTION 1
+#define EXIT 0
+
 
 //defines de tamanhos bastante usados
+#define LEN_PAGDISC 65
 #define LEN_FOLHA 1
 #define LEN_NROCHAVESNO 4
 #define LEN_ALTURANO 4
@@ -38,7 +41,7 @@ typedef struct{
     int ponteiro[5]; // RRN dos nos filhos
     Key* key[4]; // chaves
 
-    char folha;
+    char folha; 
     int nroChavesNo;
     int alturaNo;
     int RRNdoNo;

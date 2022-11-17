@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "register.h"
-#include "print_msg.h"
 
 //aloca memoria e inicializa variaveis para o cabecalho
 Header_reg* create_header(){
@@ -42,7 +41,7 @@ void release_reg(Data_reg* reg){
 int read_header(Header_reg* header, FILE* file){
     fread(&header->status, sizeof(char), 1, file);
     if(header->status == '0'){
-        error_file();
+        // error_file();
         return 0; //erro no arquivo    
     }
     

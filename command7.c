@@ -31,114 +31,128 @@ int recursive_next_node(FILE* index_file, Node* node, Key* data, int node_pai) {
 
 void shift_keys_node(Node* node, int j) {
 
-    for (size_t i = 2; i <= j; i++) {
+    for (size_t i = 2; i >= j; i--) {
         node->key[i + 1] = node->key[i];
     }  
 }
 
-void recursive_spliting(FILE* file, Node* node, Key* data, int rrn_pai) {
-
-    // descobrir qual o termo do meio
-    int central;
-    Key* central_key = create_key();
+Node* split(Key* key, Node* node, Key* promo_key) {
     
-    if (node->key[1]->search_key > data->search_key) {
-        central == 1;
-        central_key->search_key = node->key[1]->search_key;
-        central_key->RRN_key = node->key[1]->RRN_key;
-        
-    } else if (node->key[2]->search_key < data->search_key) {
-        central == 2;
-        central_key->search_key = node->key[2]->search_key;
-        central_key->RRN_key = node->key[2]->RRN_key;
-    } else {
-        central == 4;
-        central_key->search_key = data->search_key;
-        central_key->RRN_key = data->RRN_key;
-    }
+    Key* keys[5] = {node->key[0],
+                    node->key[1],
+                    node->key[2],
+                    node->key[3],
+                    NULL};
 
-    // cria um novo nó para alocar as 2 maiores chaves
-    Node* new = create_node();
-    if (central == 1) {
-        new->key[0]->search_key = node->key[2]->search_key;
-        new->key[0]->RRN_key = node->key[2]->RRN_key;
-        new->key[1]->search_key = node->key[3]->search_key;
-        new->key[1]->RRN_key = node->key[2]->RRN_key;
-    
-    } else if (central == 2) {
-        /**
-         * Ver ordem que vai ficar no novo node entre a chave 3 e o data
-        */
-    
-    } else if (central == 4) {
-        new->key[0]->search_key = node->key[2]->search_key;
-        new->key[0]->RRN_key = node->key[2]->RRN_key;
-        new->key[1]->search_key = node->key[3]->search_key;
-        new->key[1]->RRN_key = node->key[2]->RRN_key;
-    }
-
-    // nesse node atual, vai ficar as 2 menores chaves
-    if (central == 1) {
-        node->key[2]->search_key = -1;
-        node->key[2]->RRN_key = -1;
-        node->key[3]->search_key = -1;
-        node->key[3]->RRN_key = -1;
-
-        // ver ordem da chave 0 e do data
-
-    } else if (central == 2) {
-        node->key[2]->search_key = -1;
-        node->key[2]->RRN_key = -1;
-        node->key[3]->search_key = -1;
-        node->key[3]->RRN_key = -1;
-
-    } else if (central == 4) {
-        node->key[2]->search_key = -1;
-        node->key[2]->RRN_key = -1;
-        node->key[3]->search_key = -1;
-        node->key[3]->RRN_key = -1;
-    }
-
-    /**
-     * Ver como vai ficar colocado os ponteiros
-     * Arrumar as variaveis fixas do no
-     * Dar fwrite nesses novas nodes
-    */
-
-    // a chave mediana sobe na árvore (necessário manter o RRN do no pai em registro)
-    // ver se cabe ele nesse no (chaves !-= 4)
-    // se couber, colocar ele na ordem e return
-    // se nao, chamar a função recursive_spliting
-    Node* node_pai = create_node();
-    if (central != 4) {
-        fseek(file, ((rrn_pai*LEN_PAGDISC) + LEN_PAGDISC), SEEK_SET);
-        read_node(file, node_pai);
-
-        if(node_pai->nroChavesNo != 4) {
-            for (size_t j = 0; j < 4; j++) {
-                if (central_key > node_pai->key[j]->search_key) {
-                    continue;
-                } else {
-                    shift_keys_node(node, j);
-                    node_pai->key[j] = central_key;
-                }
+    for (size_t i = 0; i < 5; i++)
+    {
+        if (key->search_key < keys[i]->search_key || keys[i] == NULL) {
+            
+            for (size_t j = 3; j >= i; j--) {
+                keys[j + 1] = keys[j];
             }
-        } else if (node_pai->nroChavesNo == 4) {
-            // TO DO
+            keys[i] = key;
+            break;
         }
-    } else if (central_key == 4) {
-        // TO DO
     }
+    promo_key = keys[2]; // elemento central do array
     
-    /**
-     * fwrite novo no pai
-    */
+    Node* new_node = create_node();
+    new_node->alturaNo = node->alturaNo;
+    new_node->folha = node->folha;
+    // node->RRNdoNo = 
+    new_node->nroChavesNo = 2;
+    // coloca os valores dps do centro para a nova pagina
+    for (size_t i = 0; i < 3; i++)
+    {
+        new_node->ponteiro[i] = node->ponteiro[i+2];
+        if (i != 4) {
+            new_node->key[i]->search_key = node->key[i+2]->search_key;
+            new_node->key[i]->RRN_key = node->key[i+2]->RRN_key;
+        }
+    }
 
-    release_key(central_key);
-    release_node(new);
-    release_node(node_pai);
+    node->nroChavesNo = 2;
+    //delete os valores dps do centro desse pagina
+    for (size_t i = 2; i < 5; i++)
+    {
+        node->ponteiro[i] = -1;
+        if (i != 4) {
+            node->key[i]->search_key = -1;
+            node->key[i]->RRN_key = -1;
+        }
+    }
+
+    return new_node;
+    
 }
 
+int insert(FILE* file, int current_rrn, Key* key, Key* promo_key) {
+
+    // como esse nó nao existe, a chave deverá ficar no nó anterior
+    if (current_rrn == -1) {
+        promo_key = key;
+        return DO_PROMOTION;
+    } else {
+        Node* node = create_node();
+        fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
+        read_node(file, node);
+
+        int pos;
+        for (size_t i = 0; i < 4; i++)
+        {
+            if (key->search_key <= node->key[i]->search_key || node->key[i]->search_key == -1) {
+                if (node->key[i]->search_key == key->search_key) {
+                    printf("Chave já inserida\n");
+                    return EXIT;
+                }
+                pos = i;
+            }
+        }
+
+        int return_value = insert(file, node->ponteiro[pos], key, promo_key);
+
+        if (return_value == EXIT, return_value == NO_PROMOTION) {
+            return return_value;
+        } else if (node->nroChavesNo < 4) {
+            // insert P_B_KEY and P_B_RRN in PAGE
+            if (node->key[pos]->search_key == -1) {
+                node->key[pos] = key;
+            } else {
+                shift_keys_node(node, pos);
+                node->key[pos] = promo_key;
+            }
+            fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
+            write_node(file, node);
+
+            return NO_PROMOTION;
+        } else {
+            Node* new_node = split(key, node, promo_key);
+
+            fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
+            write_node(file, node);
+
+            // verifica qual o proximo rrn livre
+            BTHeader* header = malloc(sizeof(BTHeader));
+            read_btheader(file, header);
+
+            // escreve o novo no
+            fseek(file, LEN_PAGDISC + (header->RRNproxNo*LEN_PAGDISC), SEEK_SET);
+            write_node(file, new_node);
+
+            // update no header com o novo proximo rrn
+            header->RRNproxNo++;
+            update_btheader(file, header);
+
+            free(node);
+            free(new_node);
+            free(header);
+
+            return DO_PROMOTION;
+        }
+        
+    }
+}
 
 // colocar 3 /// aparece
 /// @brief 
@@ -157,8 +171,7 @@ int command7(char* data_name, char* index_name) {
     FILE* index_file = fopen(index_name, "wb+");
     if (index_file == NULL) {
         return 0;
-    }
-    
+    }    
 
     // lendo header do arquivo de dados
     Header_reg* reg_header = malloc(sizeof(Header_reg));
@@ -171,7 +184,7 @@ int command7(char* data_name, char* index_name) {
     */
 
 
-   // lendo o primeiro registro dos dados
+    // lendo o primeiro registro dos dados
     Data_reg* data = malloc(sizeof(Data_reg));
     Key* data_key = create_key();
     fseek(data_file, LEN_DISC_PAG, SEEK_SET);
@@ -186,7 +199,6 @@ int command7(char* data_name, char* index_name) {
     node->key[0]->search_key = data->idConecta; // chave raiz no momento
     node->key[0]->RRN_key = 0; // RRN dessa chave no arquivo de dados
 
-
     // criando e escrevendo o header do arquivo de index
     BTHeader* ind_header = create_btheader();
     ind_header->noRaiz = 0; // ignorando o header
@@ -194,33 +206,17 @@ int command7(char* data_name, char* index_name) {
     write_btheader(index_file, ind_header);
     write_node(index_file, node);
 
-    for (size_t i = 0; i < reg_header->proxRRN; i++) {   
+    for (size_t i = 1; i < reg_header->proxRRN; i++) {   
         if(!read_register(data_file, data)) { // se o registro tiver deletado
             continue;
         }
-        data_key->search_key = node->key[1]->search_key;
+        data_key->search_key = data->idConecta;
         data_key->RRN_key = i;
 
-        fseek(index_file, ((ind_header->noRaiz*LEN_PAGDISC) + LEN_PAGDISC), SEEK_SET); // vai para a raiz
-        read_node(index_file, node);
+        if (insert(index_file, ind_header->noRaiz, data_key, NULL) == 2) { // 2 IGUAL PROMOTION
 
-        int node_pai = ind_header->noRaiz;
-        node_pai = recursive_next_node(index_file, node, data_key, node_pai); // quando retornar, o node tera a folha na qual a chave melhor se encaixa
-        
-        if (node->nroChavesNo == 4) {
-            // TO DO SPLIT
-        } else {
-            for (size_t j = 0; j < 4; j++) {
-                if (data->idConecta > node->key[j]->search_key) {
-                    continue;
-                } else {
-                    shift_keys_node(node, j);
-                    node->key[j]->search_key = data->idConecta;
-                    node->key[j]->RRN_key = i;
-                }
-            }
-            
         }
+
     }
 
     // colocando 1 no status e fechando o arquivo

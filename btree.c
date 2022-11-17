@@ -23,7 +23,7 @@ void release_btheader(BTHeader* header){
 int read_btheader( FILE* file, BTHeader* header){
     fread(&header->status, sizeof(char), 1, file);
     if(header->status == '0'){
-        error_file();
+        // error_file();
         return 0; //erro no arquivo    
     }
     
