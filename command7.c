@@ -118,7 +118,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key** promo_key) {
             pos = 4;
         }
 
-        Key* local_promo = malloc(sizeof(Key*));
+        Key* local_promo = malloc(sizeof(Key));
         int return_value = insert(file, node->ponteiro[pos], key, &local_promo);
         //printf("valor local_promo: %d\n", *local_promo->search_key);
         if (return_value == EXIT, return_value == NO_PROMOTION) {
@@ -232,7 +232,7 @@ int command7(char* data_name, char* index_name) {
         data_key->search_key = data->idConecta;
         data_key->RRN_key = i;
         //printf("%d - entrou\n", data_key->search_key);
-        Key* promo_key = malloc(sizeof(Key*));
+        Key* promo_key = malloc(sizeof(Key));
         //(*promo_key)->search_key = -2;
         if (insert(index_file, ind_header->noRaiz, data_key, &promo_key) == DO_PROMOTION) {
             printf("entrou driver\n");
