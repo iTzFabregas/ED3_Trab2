@@ -2,6 +2,8 @@
 #define __REGISTER_H__
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 //macros sobre o arquivo
 #define LEN_DISC_PAG 960
@@ -72,5 +74,7 @@ void write_header(FILE* file, Header_reg* header);
 
 //escreve os campos de registro no arquivo indicado
 void write_register(FILE* file_write, Data_reg* registro);
+
+void printar_registros(Data_reg *registro);
 
 #endif
