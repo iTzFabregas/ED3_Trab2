@@ -21,11 +21,13 @@ void release_btheader(BTHeader* header){
 
 //le os campos do cabecalho
 int read_btheader( FILE* file, BTHeader* header){
+
+    fseek(file, 0, SEEK_SET);
     fread(&header->status, sizeof(char), 1, file);
-    if(header->status == '0'){
+    /*if(header->status == '0'){
         // error_file();
         return 0; //erro no arquivo    
-    }
+    }*/
     
     fread(&header->noRaiz, sizeof(int), 1, file);
     fread(&header->nroChavesTotal, sizeof(int), 1, file);
@@ -128,6 +130,35 @@ Node* create_node(){
     }
 
     return node;
+}
+
+void delete_keys(Node* node) {
+
+    node->nroChavesNo = 0;
+    for (size_t i = 0; i < 5; i++)
+    {
+        node->ponteiro[i] = -1;
+        if (i != 4) {
+            node->key[i]->search_key = -1;
+            node->key[i]->RRN_key = -1;
+        }
+    }
+    printf("sai\n");
+}
+
+void print_nodes(Node* nodes) {
+
+    printf("Nro de chaves: %d\n", nodes->nroChavesNo);
+    printf("RRN do node %d\n", nodes->RRNdoNo);
+    for (size_t i = 0; i < 5; i++)
+    {
+        printf("Ponteiro %ld - %d\n", i, nodes->ponteiro[i]);
+        if (i != 4) {
+            printf("Chave %ld -    %d\n", i, nodes->key[i]->search_key);
+        }
+    }
+    printf("\n\n");
+    
 }
 
 void release_node(Node* node){

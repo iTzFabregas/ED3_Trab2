@@ -1,5 +1,5 @@
 all:
-	gcc -o Trab2 *.c
+	gcc -g -o Trab2 *.c
 
 run:
 	./Trab2

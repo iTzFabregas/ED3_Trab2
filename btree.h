@@ -66,6 +66,8 @@ void release_key(Key* key);
 
 // criação e liberação do nó
 Node* create_node();
+void delete_keys(Node* node);
 void release_node(Node* node);
+void print_nodes(Node* node);
 
 #endif
