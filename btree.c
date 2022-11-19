@@ -64,6 +64,14 @@ void update_btheader(FILE* file, BTHeader* header) {
     fwrite(&header->RRNproxNo, sizeof(int), 1, file);
 }
 
+void print_btheader(BTHeader* header) {
+    
+    printf("status %c\n", header->status);
+    printf("noraiz %d\n", header->noRaiz);
+    printf("nrochabes %d\n", header->nroChavesTotal);
+    printf("alturaarvore %d\n", header->alturaArvore);
+    printf("proxno %d\n", header->RRNproxNo);
+}
 
 int read_node(FILE* file, Node* node) { // verificar se funciona
     fread(&node->folha, LEN_FOLHA, 1, file);
@@ -74,8 +82,8 @@ int read_node(FILE* file, Node* node) { // verificar se funciona
     {
         fread(&node->ponteiro[i], LEN_PONTEIRO, 1, file);
         if (i != 4) {
-            fread(&node->key[i]->search_key, LEN_SEARCHKEY, 1, file);
-            fread(&node->key[i]->RRN_key, LEN_RRN_KEY, 1, file);
+            fread(&node->key[i].search_key, LEN_SEARCHKEY, 1, file);
+            fread(&node->key[i].RRN_key, LEN_RRN_KEY, 1, file);
         }
     }
 }
@@ -89,8 +97,8 @@ void write_node(FILE* file, Node* node) {
     {
         fwrite(&node->ponteiro[i], LEN_PONTEIRO, 1, file);
         if (i != 4) {
-            fwrite(&node->key[i]->search_key, LEN_SEARCHKEY, 1, file);
-            fwrite(&node->key[i]->RRN_key, LEN_RRN_KEY, 1, file);
+            fwrite(&node->key[i].search_key, LEN_SEARCHKEY, 1, file);
+            fwrite(&node->key[i].RRN_key, LEN_RRN_KEY, 1, file);
         }
     }
     
@@ -123,9 +131,8 @@ Node* create_node(){
     {
         node->ponteiro[i] = -1;
         if (i != 4) {
-            node->key[i] = malloc(sizeof(Key*));
-            node->key[i]->search_key = -1;
-            node->key[i]->RRN_key = -1;
+            node->key[i].search_key = -1;
+            node->key[i].RRN_key = -1;
         }
     }
 
@@ -139,36 +146,27 @@ void delete_keys(Node* node) {
     {
         node->ponteiro[i] = -1;
         if (i != 4) {
-            node->key[i]->search_key = -1;
-            node->key[i]->RRN_key = -1;
+            node->key[i].search_key = -1;
+            node->key[i].RRN_key = -1;
         }
     }
-    printf("sai\n");
 }
 
-void print_nodes(Node* nodes) {
+void print_nodes(Node* node) {
 
-    printf("Nro de chaves: %d\n", nodes->nroChavesNo);
-    printf("RRN do node %d\n", nodes->RRNdoNo);
-    for (size_t i = 0; i < 5; i++)
-    {
-        printf("Ponteiro %ld - %d\n", i, nodes->ponteiro[i]);
-        if (i != 4) {
-            printf("Chave %ld -    %d\n", i, nodes->key[i]->search_key);
-        }
-    }
-    printf("\n\n");
+    //printf("Folha %c\n", node->folha);
+    //printf("Altura %d\n", node->alturaNo);
+    //printf("Nro de chaves: %d\n", node->nroChavesNo);
+    //printf("RRN do node %d\n\n", node->RRNdoNo);
+    //for (size_t i = 0; i < 5; i++)
+    //{
+    //    printf("Ponteiro %ld - %d\n", i, node->ponteiro[i]);
+    //    if (i != 4) {
+    //        printf("Chave %ld -    %d\n", i, node->key[i].search_key);
+    //    }
+    //}
+    //printf("\n\n");
     
-}
-
-void release_node(Node* node){
-
-    for (size_t i = 0; i < 4; i++) {
-        free(node->key[i]);
-        node->key[i] = NULL;
-    }
-    free(node);
-    node = NULL;
 }
 
 // PESQUISA do 'X'

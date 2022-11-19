@@ -39,7 +39,7 @@ typedef struct{
 //define estutura de um no
 typedef struct{
     int ponteiro[5]; // RRN dos nos filhos
-    Key* key[4]; // chaves
+    Key key[4]; // chaves
 
     char folha; 
     int nroChavesNo;
@@ -55,6 +55,7 @@ void release_btheader(BTHeader* header);
 int read_btheader(FILE* file, BTHeader* header);
 void write_btheader(FILE* file, BTHeader* header);
 void update_btheader(FILE* file, BTHeader* header);
+void print_btheader(BTHeader* header);
 
 // leitura e escrita do no
 int read_node(FILE* file, Node* node);
@@ -67,7 +68,6 @@ void release_key(Key* key);
 // criação e liberação do nó
 Node* create_node();
 void delete_keys(Node* node);
-void release_node(Node* node);
 void print_nodes(Node* node);
 
 #endif

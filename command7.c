@@ -22,7 +22,7 @@ int recursive_next_node(FILE* index_file, Node* node, Key* data, int node_pai) {
 
     for (size_t i = 0; i < 4; i++) {
 
-        if (data->search_key > node->key[i]->search_key && i != 3) {
+        if (data->search_key > node->key[i].search_key && i != 3) {
             continue;
         }
         if (node->ponteiro[i] != -1) {
@@ -45,21 +45,20 @@ void shift_keys_node(Node* node, int j) {
         }
 
         if(i != 3) {
-            *(node->key[i + 1]) = *(node->key[i]);
+            node->key[i + 1] = node->key[i];
         }
     }  
 }
 
 void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int* right_rrn, Node* new_node) {
     
-    printf("entrei split\n");
+    printf("rolou um split\n");
     key_list* keys = malloc(sizeof(key_list));
     for (size_t i = 0; i < 5; i++)
     {
         keys->ponteiro[i] = node->ponteiro[i];
         if (i != 4) {
-            keys->key[i].search_key = node->key[i]->search_key;
-            keys->key[i].RRN_key = node->key[i]->RRN_key;
+            keys->key[i]= node->key[i];
         }
     }
     keys->key[4] = *(local_key);
@@ -77,7 +76,6 @@ void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int
                 if (i != 4) {
                     keys->key[i+1] = keys->key[i];
                 }
-                keys[j + 1] = keys[j];
             }
             
             keys->key[j] = *(local_key);
@@ -86,20 +84,8 @@ void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int
 
         }
     }
-    
 
     *promo_key = keys->key[2]; // elemento central do array
-    //*right_rrn = keys->ponteiro[3];
-
-    printf("RAIZES\n");
-    for (size_t i = 0; i < 6; i++)
-    {
-        printf("Ponteiro %ld - %d\n", i, keys->ponteiro[i]);
-        if (i != 5) {
-            printf("Chave %ld -    %d\n", i, keys->key[i].search_key);
-        }
-    }
-    printf("\n");
 
     new_node->alturaNo = node->alturaNo;
     new_node->folha = node->folha;
@@ -110,37 +96,31 @@ void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int
     {
         new_node->ponteiro[i] = keys->ponteiro[i+3];
         if (i != 2) {
-            *(new_node->key[i]) = keys->key[i+3];
+            new_node->key[i]  = keys->key[i+3];
         }
     }
 
 
     //deleta os valores e coloca os novos valores na pagina antiga
     delete_keys(node);
-    printf("to aqui\n");
     node->nroChavesNo = 2;
     for (size_t i = 0; i < 2; i++)
     {
         node->ponteiro[i] = keys->ponteiro[i];
         if (i != 4) {
-            node->key[i]->search_key = keys->key[i].search_key;
-            node->key[i]->RRN_key = keys->key[i].RRN_key;
+            node->key[i] = keys->key[i];
         }
     }
     
         free(keys);
-        printf("sai do split\n");
 }
 
 int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn) {
 
-    //printf("entre insert\n");
-    //printf("entrei insert, %d\n", current_rrn);
     // como esse nó nao existe, a chave deverá ficar no nó anterior
     if (current_rrn == -1) {
         *promo_key = *key;
         *right_rrn = -1;
-        //printf("-> atribuindo a promo_key: %d\n", (*promo_key)->search_key);
         return DO_PROMOTION;
         
     } else {
@@ -151,18 +131,17 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
         int pos;
         for (size_t i = 0; i < 4; i++)
         {
-            if (key->search_key <= node->key[i]->search_key || node->key[i]->search_key == -1) {
-                if (node->key[i]->search_key == key->search_key) {
+            if (key->search_key <= node->key[i].search_key || node->key[i].search_key == -1) {
+                if (node->key[i].search_key == key->search_key) {
                     printf("Chave já inserida\n");
-                    printf("linha 155\n");
-                    release_node(node);
+                    free(node);
 
                     return EXIT;
                 }
                 pos = i;
                 break;
             }
-            pos = 3;
+            pos = 4;
         }
 
         Key* local_promo = malloc(sizeof(Key));
@@ -170,22 +149,20 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
         int return_value = insert(file, node->ponteiro[pos], key, local_promo, local_right_rrn);
 
         if (return_value == EXIT, return_value == NO_PROMOTION) {
-            printf("linha 170\n");
-            release_node(node);
+            free(node);
             free(local_promo);
             free(local_right_rrn);
 
             return return_value;
 
         } else if (node->nroChavesNo < 4) {
-            // insert P_B_KEY and P_B_RRN in PAGE
-            if (node->key[pos]->search_key == -1) {
-                *(node->key[pos]) = *local_promo;
+
+            if (node->key[pos].search_key == -1) {
+                node->key[pos] = *local_promo;
                 node->ponteiro[pos+1] = *local_right_rrn;
             } else {
                 shift_keys_node(node, pos);
-                node->key[pos]->search_key = local_promo->search_key;
-                node->key[pos]->RRN_key = local_promo->RRN_key;
+                node->key[pos] = *local_promo;
                 node->ponteiro[pos+1] = *local_right_rrn;
             }            
             
@@ -194,12 +171,12 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
             write_node(file, node);
             print_nodes(node);
 
-            printf("linha 194\n");
-            release_node(node);
+            free(node);
             free(local_promo);
             free(local_right_rrn);
 
             return NO_PROMOTION;
+
         } else {
             Node* new_node = create_node();
             print_nodes(node);
@@ -225,14 +202,10 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
             header->RRNproxNo++;
             update_btheader(file, header);
 
-            printf("linha 225\n");
             free(node);
-            printf("linha 230\n");
             free(local_promo);
-            printf("linha 232\n");
             free(local_right_rrn);
-            printf("linha 229\n");
-            release_node(new_node);
+            free(new_node);
             free(header);
 
             return DO_PROMOTION;
@@ -283,10 +256,10 @@ int command7(char* data_name, char* index_name) {
     Node* node = create_node();
     node->folha = '1'; // nao tem filhos
     node->nroChavesNo = 1; // vai ter uma chave
-    node->alturaNo = 0; // ta na parte mais baixo da arvore
-    node->RRNdoNo = 0; // ????
-    node->key[0]->search_key = data->idConecta; // chave raiz no momento
-    node->key[0]->RRN_key = 0; // RRN dessa chave no arquivo de dados
+    node->alturaNo = 1; // ta na parte mais baixo da arvore
+    node->RRNdoNo = 0;
+    node->key[0].search_key = data->idConecta; // chave raiz no momento
+    node->key[0].RRN_key = 0; // RRN dessa chave no arquivo de dados
 
     // criando e escrevendo o header do arquivo de index
     BTHeader* ind_header = create_btheader();
@@ -297,26 +270,29 @@ int command7(char* data_name, char* index_name) {
     write_node(index_file, node);
     print_nodes(node);
 
-    // for (size_t i = 1; i < reg_header->proxRRN; i++) {
+    int nro_total_chaves = 1;
+    int altura_arvore = 1;
     for (size_t i = 1; i < reg_header->proxRRN; i++) {
         fseek(data_file, LEN_DISC_PAG+(LEN_REG*i), SEEK_SET); 
         if(!read_register(data_file, data)) { // se o registro tiver deletado
             continue;
         }
+        nro_total_chaves++;
+
         data_key->search_key = data->idConecta;
         data_key->RRN_key = i;
         Key* promo_key = malloc(sizeof(Key));
         int* right_rrn = malloc(sizeof(int));
 
-        printf("add o %d - %ld\n", data_key->search_key, i);
         if (insert(index_file, ind_header->noRaiz, data_key, promo_key, right_rrn) == DO_PROMOTION) {
             printf("Valor que sobe: %d\n", promo_key->search_key);
+            altura_arvore++;
             Node* new_root = create_node();
             new_root->folha = '0';
             new_root->nroChavesNo = 1; // vai ter uma chave
-            new_root->alturaNo = node->alturaNo++; // ta 1 de altura acima do ultimo nó
+            new_root->alturaNo = altura_arvore; // ta 1 de altura acima do ultimo nó
             new_root->ponteiro[0] = ind_header->noRaiz;
-            new_root->key[0] = promo_key;
+            new_root->key[0] = *promo_key;
             new_root->ponteiro[1] = *right_rrn;
 
             // verifica qual o proximo rrn livre
@@ -329,28 +305,33 @@ int command7(char* data_name, char* index_name) {
             print_nodes(new_root);
 
             // update no header com o novo proximo rrn
+            read_btheader(index_file, ind_header);
             ind_header->noRaiz = ind_header->RRNproxNo;
             ind_header->RRNproxNo++;
+            ind_header->alturaArvore = new_root->alturaNo;
+            ind_header->nroChavesTotal = nro_total_chaves;
             update_btheader(index_file, ind_header);
             free(new_root);
-
         }
+
+        free(promo_key);
+        free(right_rrn);
 
     }
 
     // colocando 1 no status e fechando o arquivo
     ind_header->status = '1';
+    ind_header->nroChavesTotal = nro_total_chaves;
     update_btheader(index_file, ind_header);
+    print_btheader(ind_header);
 
     fclose(data_file);
     fclose(index_file);
 
     free(reg_header);
     free(data);
-    printf("linha 345\n");
     release_key(data_key);
-    printf("linha 347\n");
-    release_node(node);
+    free(node);
     release_btheader(ind_header);
 
     return 1;
