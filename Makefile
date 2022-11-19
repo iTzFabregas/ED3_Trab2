@@ -5,7 +5,7 @@ run:
 	./trab2
 
 clean:
-	rm trab2 *.o
+	rm trab2 *.o *.zip *.bin
 
 zip:
 	zip trab2.zip Makefile *.c *.o *.h

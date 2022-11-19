@@ -39,9 +39,9 @@ void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int
  * @param key chave a ser inserida
  * @param promo_key chave q será promovida, se necessário
  * @param right_rrn ponteiro a direita dessa chave
- * @return int 
+ * @return int retorna se é ou não necessário fazer a promoção no nó pai
  */
-int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn) {
+int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn);
 
 /**
  * @brief Aqui é onde funciona a função driver que inicializa a árvore, criando a sua primeira raiz e
@@ -51,7 +51,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
  * 
  * @param data_name nome do arquivo de dados
  * @param index_name nome do arquivo de indexes
- * @return int 
+ * @return int retorna se a função foi concluida com sucesso ou nao
  */
 int command7(char data_name[], char index_name[]);
 
