@@ -47,11 +47,13 @@ typedef struct{
     int RRNdoNo;
 } Node;
 
+// estrutura necessário para o split, onde cabe uma chave a mais
 typedef struct
 {
     int ponteiro[6]; // RRN dos nos filhos
     Key key[5]; // chaves
-}key_list;
+} Key_list;
+
 
 // criação do header
 BTHeader* create_btheader();

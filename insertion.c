@@ -18,7 +18,7 @@ void shift_keys_node(Node* node, int pos) {
 
 void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int* right_rrn, Node* new_node) {
     
-    key_list* keys = malloc(sizeof(key_list));
+    Key_list* keys = malloc(sizeof(Key_list));
     for (size_t i = 0; i < 5; i++)
     {
         keys->ponteiro[i] = node->ponteiro[i];
