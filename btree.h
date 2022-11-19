@@ -47,25 +47,28 @@ typedef struct{
     int RRNdoNo;
 } Node;
 
-// criação e liberação do header
+typedef struct
+{
+    int ponteiro[6]; // RRN dos nos filhos
+    Key key[5]; // chaves
+}key_list;
+
+// criação do header
 BTHeader* create_btheader();
-void release_btheader(BTHeader* header);
 
 // leitura e escrita do header
 int read_btheader(FILE* file, BTHeader* header);
 void write_btheader(FILE* file, BTHeader* header);
 void update_btheader(FILE* file, BTHeader* header);
-void print_btheader(BTHeader* header);
 
 // leitura e escrita do no
 int read_node(FILE* file, Node* node);
 void write_node(FILE* file, Node* node);
 
-// criação e liberação da chave
+// criação da chave
 Key* create_key();
-void release_key(Key* key);
 
-// criação e liberação do nó
+// criação e manipulação do nó
 Node* create_node();
 void delete_keys(Node* node);
 void print_nodes(Node* node);

@@ -64,7 +64,6 @@ int read_register(FILE* file, Data_reg* registro) {
 
     fread(&registro->encadeamento, ENCADEAMENTO_TAM, 1, file);
     fread(&registro->idConecta, IDCONECTA_TAM, 1, file);
-    printf(">> %d\n", registro->idConecta);
     fread(registro->siglaPais, SIGLAPAIS_TAM, 1, file);
     registro->siglaPais[2] = '\0';
     fread(&registro->idPoPsConectado, IDPOPSCONECTADO, 1, file);

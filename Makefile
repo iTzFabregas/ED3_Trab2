@@ -1,5 +1,11 @@
 all:
-	gcc -g -o Trab2 *.c
+	gcc -g -o trab2 *.c
 
 run:
-	./Trab2
+	./trab2
+
+clean:
+	rm trab2 *.o
+
+zip:
+	zip trab2.zip Makefile *.c *.o *.h

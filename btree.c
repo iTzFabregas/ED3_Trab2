@@ -12,13 +12,6 @@ BTHeader* create_btheader(){
     return header;
 }
 
-//libera memoria usada no cabecalho
-void release_btheader(BTHeader* header){
-    free(header);
-    header = NULL;
-}
-
-
 //le os campos do cabecalho
 int read_btheader( FILE* file, BTHeader* header){
 
@@ -64,15 +57,6 @@ void update_btheader(FILE* file, BTHeader* header) {
     fwrite(&header->RRNproxNo, sizeof(int), 1, file);
 }
 
-void print_btheader(BTHeader* header) {
-    
-    printf("status %c\n", header->status);
-    printf("noraiz %d\n", header->noRaiz);
-    printf("nrochabes %d\n", header->nroChavesTotal);
-    printf("alturaarvore %d\n", header->alturaArvore);
-    printf("proxno %d\n", header->RRNproxNo);
-}
-
 int read_node(FILE* file, Node* node) { // verificar se funciona
     fread(&node->folha, LEN_FOLHA, 1, file);
     fread(&node->nroChavesNo, LEN_NROCHAVESNO, 1, file);
@@ -104,7 +88,6 @@ void write_node(FILE* file, Node* node) {
     
 }
 
-
 Key* create_key(){
 
     Key* key = malloc(sizeof(Key));
@@ -112,11 +95,6 @@ Key* create_key(){
     key->RRN_key = -1;
     
     return key;
-}
-
-void release_key(Key* key){
-    free(key);
-    key = NULL;
 }
 
 
@@ -154,18 +132,18 @@ void delete_keys(Node* node) {
 
 void print_nodes(Node* node) {
 
-    //printf("Folha %c\n", node->folha);
-    //printf("Altura %d\n", node->alturaNo);
-    //printf("Nro de chaves: %d\n", node->nroChavesNo);
-    //printf("RRN do node %d\n\n", node->RRNdoNo);
-    //for (size_t i = 0; i < 5; i++)
-    //{
-    //    printf("Ponteiro %ld - %d\n", i, node->ponteiro[i]);
-    //    if (i != 4) {
-    //        printf("Chave %ld -    %d\n", i, node->key[i].search_key);
-    //    }
-    //}
-    //printf("\n\n");
+    printf("Folha %c\n", node->folha);
+    printf("Altura %d\n", node->alturaNo);
+    printf("Nro de chaves: %d\n", node->nroChavesNo);
+    printf("RRN do node %d\n\n", node->RRNdoNo);
+    for (size_t i = 0; i < 5; i++)
+    {
+        printf("Ponteiro %ld - %d\n", i, node->ponteiro[i]);
+        if (i != 4) {
+            printf("Chave %ld -    %d\n", i, node->key[i].search_key);
+        }
+    }
+    printf("\n\n");
     
 }
 

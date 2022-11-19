@@ -1,46 +1,11 @@
-// A ideia dessa comando é pegar o arquivo .bin do trabalho 1 e criar uma árvore de indices para ele
-
-// cada no(pagina de disco) possui 5 descendentes
-// cada no, menos a raiz, possui no minimo 3 descendentes
-// a raiz possui pelo menos 2 descentes
-// todas as folhas aparecem no mesmo nível
 #include "command7.h"
 
-typedef struct
-{
-    int ponteiro[6]; // RRN dos nos filhos
-    Key key[5]; // chaves
-}key_list;
 
+void shift_keys_node(Node* node, int pos) {
 
+    for (int i = 3; i >= pos; i--) {
 
-int recursive_next_node(FILE* index_file, Node* node, Key* data, int node_pai) {
-
-    if (node->folha == '1') { // né ???
-        return node_pai;
-    }
-
-    for (size_t i = 0; i < 4; i++) {
-
-        if (data->search_key > node->key[i].search_key && i != 3) {
-            continue;
-        }
-        if (node->ponteiro[i] != -1) {
-            node_pai = node->RRNdoNo;
-            fseek(index_file, ((node->ponteiro[i]*LEN_PAGDISC) + LEN_PAGDISC), SEEK_SET);
-            read_node(index_file, node);
-            node_pai = recursive_next_node(index_file, node, data, node_pai);
-            break;
-        }
-    }
-    return node_pai;
-}
-
-void shift_keys_node(Node* node, int j) {
-
-    for (int i = 3; i >= j; i--) {
-
-        if (i != j) {
+        if (i != pos) {
             node->ponteiro[i + 1] = node->ponteiro[i];
         }
 
@@ -50,9 +15,9 @@ void shift_keys_node(Node* node, int j) {
     }  
 }
 
+
 void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int* right_rrn, Node* new_node) {
     
-    printf("rolou um split\n");
     key_list* keys = malloc(sizeof(key_list));
     for (size_t i = 0; i < 5; i++)
     {
@@ -104,16 +69,17 @@ void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int
     //deleta os valores e coloca os novos valores na pagina antiga
     delete_keys(node);
     node->nroChavesNo = 2;
-    for (size_t i = 0; i < 2; i++)
+    for (size_t i = 0; i < 3; i++)
     {
         node->ponteiro[i] = keys->ponteiro[i];
-        if (i != 4) {
+        if (i != 2) {
             node->key[i] = keys->key[i];
         }
     }
     
         free(keys);
 }
+
 
 int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn) {
 
@@ -169,7 +135,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
             node->nroChavesNo++;
             fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
             write_node(file, node);
-            print_nodes(node);
+            //print_nodes(node);
 
             free(node);
             free(local_promo);
@@ -179,13 +145,13 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
 
         } else {
             Node* new_node = create_node();
-            print_nodes(node);
+            //print_nodes(node);
             split(local_promo, local_right_rrn, node, promo_key, right_rrn, new_node);
             
             // escrevendo o node
             fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
             write_node(file, node);
-            print_nodes(node);
+            //print_nodes(node);
 
             // verifica qual o proximo rrn livre
             BTHeader* header = create_btheader();
@@ -195,7 +161,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
             new_node->RRNdoNo = header->RRNproxNo;
             fseek(file, LEN_PAGDISC + (header->RRNproxNo*LEN_PAGDISC), SEEK_SET);
             write_node(file, new_node);
-            print_nodes(new_node);
+            //print_nodes(new_node);
 
             // update no header com o novo proximo rrn
             *right_rrn = header->RRNproxNo;
@@ -214,11 +180,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
     }
 }
 
-// colocar 3 /// aparece
-/// @brief 
-/// @param data_name 
-/// @param index_name 
-/// @return 
+
 int command7(char* data_name, char* index_name) {
 
     // abrindo arquivo de dados
@@ -268,7 +230,7 @@ int command7(char* data_name, char* index_name) {
     ind_header->RRNproxNo = 1;
     write_btheader(index_file, ind_header);
     write_node(index_file, node);
-    print_nodes(node);
+    //print_nodes(node);
 
     int nro_total_chaves = 1;
     int altura_arvore = 1;
@@ -278,14 +240,15 @@ int command7(char* data_name, char* index_name) {
             continue;
         }
         nro_total_chaves++;
-
+        
         data_key->search_key = data->idConecta;
         data_key->RRN_key = i;
+
         Key* promo_key = malloc(sizeof(Key));
         int* right_rrn = malloc(sizeof(int));
 
         if (insert(index_file, ind_header->noRaiz, data_key, promo_key, right_rrn) == DO_PROMOTION) {
-            printf("Valor que sobe: %d\n", promo_key->search_key);
+            //printf("Valor que sobe: %d\n", promo_key->search_key);
             altura_arvore++;
             Node* new_root = create_node();
             new_root->folha = '0';
@@ -302,7 +265,7 @@ int command7(char* data_name, char* index_name) {
             new_root->RRNdoNo = ind_header->RRNproxNo;
             fseek(index_file, LEN_PAGDISC + (ind_header->RRNproxNo*LEN_PAGDISC), SEEK_SET);
             write_node(index_file, new_root);
-            print_nodes(new_root);
+            //print_nodes(new_root);
 
             // update no header com o novo proximo rrn
             read_btheader(index_file, ind_header);
@@ -320,19 +283,19 @@ int command7(char* data_name, char* index_name) {
     }
 
     // colocando 1 no status e fechando o arquivo
+    read_btheader(index_file, ind_header);
     ind_header->status = '1';
     ind_header->nroChavesTotal = nro_total_chaves;
     update_btheader(index_file, ind_header);
-    print_btheader(ind_header);
 
     fclose(data_file);
     fclose(index_file);
 
     free(reg_header);
     free(data);
-    release_key(data_key);
+    free(data_key);
     free(node);
-    release_btheader(ind_header);
+    free(ind_header);
 
     return 1;
 }
