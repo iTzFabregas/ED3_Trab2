@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "register.h"
+#include "data.h"
 
 #define DO_PROMOTION 2
 #define NO_PROMOTION 1

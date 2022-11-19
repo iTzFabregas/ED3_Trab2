@@ -5,7 +5,7 @@ Pedro Lucas Castro de Andrade - 11212289 - participacao: 100%
 
 #include <stdio.h>
 
-#include "command7.h"
+#include "insertion.h"
 //#include "command8.h"
 //#include "command9.h"
 //#include "command10.h"
