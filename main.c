@@ -5,7 +5,7 @@ Pedro Lucas Castro de Andrade - 11212289 - participacao: 100%
 
 #include <stdio.h>
 
-//#include "command7.h"
+#include "insertion.h"
 #include "command8.h"
 //#include "command9.h"
 //#include "command10.h"
@@ -26,9 +26,9 @@ int main(void) {
     switch (command){
         case 7:
             scanf("%s %s", data_file1, index_file);
-            /*if(command7(data_file1, index_file)){
+            if(command7(data_file1, index_file)){
                 binarioNaTela(index_file);
-            }*/
+            }
             break;
         case 8:
             scanf("%s %s %d", data_file1, index_file, &num_suarches);
