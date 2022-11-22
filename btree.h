@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "data.h"
+#include "register.h"
 
 #define DO_PROMOTION 2
 #define NO_PROMOTION 1
@@ -31,13 +31,13 @@ typedef struct{
 } BTHeader;
 
 // define estrutura de uma chave e o ponteiro referente
-typedef struct{
+typedef struct {
     int search_key; // IdConecta
     int RRN_key; // RRN no arquivo de dados que essa chave esta localizada
 } Key;
 
 //define estutura de um no
-typedef struct{
+typedef struct {
     int ponteiro[5]; // RRN dos nos filhos
     Key key[4]; // chaves
 
@@ -47,16 +47,14 @@ typedef struct{
     int RRNdoNo;
 } Node;
 
-// estrutura necessário para o split, onde cabe uma chave a mais
-typedef struct
-{
+typedef struct {
     int ponteiro[6]; // RRN dos nos filhos
     Key key[5]; // chaves
-} Key_list;
-
+} key_list;
 
 // criação do header
 BTHeader* create_btheader();
+void release_btheader(BTHeader* header);
 
 // leitura e escrita do header
 int read_btheader(FILE* file, BTHeader* header);
@@ -72,6 +70,7 @@ Key* create_key();
 
 // criação e manipulação do nó
 Node* create_node();
+void release_node(Node* node);
 void delete_keys(Node* node);
 void print_nodes(Node* node);
 

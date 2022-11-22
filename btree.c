@@ -1,4 +1,5 @@
 #include "btree.h"
+#include "print_msg.h"
 
 //aloca memoria e inicializa variaveis para o cabecalho
 BTHeader* create_btheader(){
@@ -12,15 +13,20 @@ BTHeader* create_btheader(){
     return header;
 }
 
+//libera memoria usada no cabecalho
+void release_btheader(BTHeader* header){
+    free(header);
+    header = NULL;
+}
+
 //le os campos do cabecalho
 int read_btheader( FILE* file, BTHeader* header){
-
     fseek(file, 0, SEEK_SET);
     fread(&header->status, sizeof(char), 1, file);
-    /*if(header->status == '0'){
-        // error_file();
+    if(header->status == '0'){
+        error_file();
         return 0; //erro no arquivo    
-    }*/
+    }
     
     fread(&header->noRaiz, sizeof(int), 1, file);
     fread(&header->nroChavesTotal, sizeof(int), 1, file);
@@ -62,8 +68,7 @@ int read_node(FILE* file, Node* node) { // verificar se funciona
     fread(&node->nroChavesNo, LEN_NROCHAVESNO, 1, file);
     fread(&node->alturaNo, LEN_ALTURANO, 1, file);
     fread(&node->RRNdoNo, LEN_RRNDONO, 1, file);
-    for (size_t i = 0; i < 5; i++)
-    {
+    for (size_t i = 0; i < 5; i++){
         fread(&node->ponteiro[i], LEN_PONTEIRO, 1, file);
         if (i != 4) {
             fread(&node->key[i].search_key, LEN_SEARCHKEY, 1, file);
@@ -113,8 +118,12 @@ Node* create_node(){
             node->key[i].RRN_key = -1;
         }
     }
-
     return node;
+}
+
+void release_node(Node* node){
+    free(node);
+    node = NULL;
 }
 
 void delete_keys(Node* node) {
@@ -131,16 +140,14 @@ void delete_keys(Node* node) {
 }
 
 void print_nodes(Node* node) {
-
     printf("Folha %c\n", node->folha);
     printf("Altura %d\n", node->alturaNo);
     printf("Nro de chaves: %d\n", node->nroChavesNo);
     printf("RRN do node %d\n\n", node->RRNdoNo);
-    for (size_t i = 0; i < 5; i++)
-    {
-        printf("Ponteiro %ld - %d\n", i, node->ponteiro[i]);
+    for (size_t i = 0; i < 5; i++){
+        printf("Ponteiro %ld -> %d\n", i, node->ponteiro[i]);
         if (i != 4) {
-            printf("Chave %ld -    %d\n", i, node->key[i].search_key);
+            printf("Chave %ld ->    %d (rrn de dados: %d)\n", i, node->key[i].search_key, node->key[i].RRN_key);
         }
     }
     printf("\n\n");
