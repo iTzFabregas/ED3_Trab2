@@ -51,30 +51,19 @@ typedef struct{
     char nomePais[NOMEPAIS_TAM];
 } Data_reg;
 
-//aloca memoria e inicializa variaveis para o cabecalho 
+//criação do header
 Header_reg* create_header();
-
-//libera memoria usada no cabecalho
-void release_header(Header_reg* header);
 
 //aloca memoria e inicializa variaveis para o reg de dados
 Data_reg* create_reg();
 
-//libera memoria usada no reg de dados
-void release_reg(Data_reg* reg);
-
-//le os campos do cabecalho
-int read_header(Header_reg* header, FILE* file);
-
-//le todos os campos de um registro do arquivo de dados
-int read_register(FILE* file, Data_reg* reg);
-
-//escreve o cabecalho no arquivo indicado
+//leitura e escrita do header
+void read_header(Header_reg* header, FILE* file);
 void write_header(FILE* file, Header_reg* header);
 
-//escreve os campos de registro no arquivo indicado
+//leitura e escrita do registro
+int read_register(FILE* file, Data_reg* reg);
 void write_register(FILE* file_write, Data_reg* registro);
-
 void printar_registros(Data_reg *registro);
 
 #endif

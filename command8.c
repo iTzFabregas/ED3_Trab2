@@ -4,8 +4,6 @@
 #include "btree.h"
 #include "register.h"
 #include "funcoesFornecidas.h"
-#include "open_close.h"
-#include "print_msg.h"
 
 //recebe os inputs do teclado e guarda qual sera o campo usado na busca
 int receive_inputs(char fieldname[][20], char field[][20], int type_field[], int num_searches){
@@ -34,7 +32,7 @@ int receive_inputs(char fieldname[][20], char field[][20], int type_field[], int
             scan_quote_string(field[i]);
             type_field[i] = 7;
         } else {
-            error_file();
+            //error_file();
             return 0;
         }
     }
@@ -52,7 +50,7 @@ int recursive_search_BT(FILE* index_file, int rrn, int key_value, int* num_pag_d
     for(i = 0; i < node->nroChavesNo; i++){
         if(node->key[i].search_key == key_value){
             int aux = node->key[i].RRN_key;
-            release_node(node);
+            //release_node(node);
             return aux; //elemento encontrado
         }
         if(node->key[i].search_key > key_value){
@@ -61,7 +59,7 @@ int recursive_search_BT(FILE* index_file, int rrn, int key_value, int* num_pag_d
     }
 
     int aux = node->ponteiro[i];
-    release_node(node);
+    //release_node(node);mAK
     if(aux == -1){ //nao ha filho na direita
         return -1; //elemento nao esta presente na arvore
     }
@@ -83,7 +81,7 @@ int search_BT(FILE* index_file, BTHeader* ind_header, int key_value, int* num_pa
     for(i = 0; i < root_node->nroChavesNo; i++){
         if(root_node->key[i].search_key == key_value){
             int aux = root_node->key[i].RRN_key;
-            release_node(root_node);
+            //release_node(root_node);
             return aux; //elemento encontrado
         }
         if(root_node->key[i].search_key > key_value){ //buscar elemento no no esquerdo
@@ -92,13 +90,13 @@ int search_BT(FILE* index_file, BTHeader* ind_header, int key_value, int* num_pa
     }
 
     int aux = root_node->ponteiro[i];
-    release_node(root_node);
+    //release_node(root_node);
     if(aux == -1){ //nao ha filho na direita
         return -1; //elemento nao esta presente na arvore
     }
     return recursive_search_BT(index_file, aux, key_value, num_pag_disc);
 }
-
+/*
 void command8(char* data_name, char* index_name, int num_searches){
     //variaveis para guardar os inputs
     char fieldname[num_searches][20];
@@ -235,3 +233,4 @@ void command8(char* data_name, char* index_name, int num_searches){
     close_file(data_file);
     close_file(index_file);
 }
+*/

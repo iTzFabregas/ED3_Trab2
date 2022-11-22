@@ -13,12 +13,6 @@ Header_reg* create_header(){
     return header;
 }
 
-//libera memoria usada no cabecalho
-void release_header(Header_reg* header){
-    free(header);
-    header = NULL;
-}
-
 //aloca memoria e inicializa variaveis para o reg de dados
 Data_reg* create_reg(){
     Data_reg* reg = malloc(sizeof(Data_reg));
@@ -28,20 +22,11 @@ Data_reg* create_reg(){
     return reg;
 }
 
-//libera memoria usada no reg de dados
-void release_reg(Data_reg* reg){
-    free(reg);
-    reg = NULL;
-}
-
 //le os campos do cabecalho
-int read_header(Header_reg* header, FILE* file){
+void read_header(Header_reg* header, FILE* file){
+    fseek(file, 0, SEEK_SET);
+
     fread(&header->status, sizeof(char), 1, file);
-    if(header->status == '0'){
-        // error_file();
-        return 0; //erro no arquivo    
-    }
-    
     fread(&header->topo, sizeof(int), 1, file);
     fread(&header->proxRRN, sizeof(int), 1, file);
     fread(&header->nroRegRem, sizeof(int), 1, file);
@@ -49,8 +34,22 @@ int read_header(Header_reg* header, FILE* file){
     fread(&header->qttCompacta, sizeof(int), 1, file);
 
     fseek(file, 939, SEEK_CUR);
+}
 
-    return 1; //sucesso
+//escreve o cabecalho no arquivo indicado
+void write_header(FILE* file, Header_reg* header) {
+    fseek(file, 0, SEEK_SET);
+
+    fwrite(&header->status, sizeof(char), 1, file);
+    fwrite(&header->topo, sizeof(int), 1, file);
+    fwrite(&header->proxRRN, sizeof(int), 1, file);
+    fwrite(&header->nroRegRem, sizeof(int), 1, file);
+    fwrite(&header->nroPagDisco, sizeof(int), 1, file);
+    fwrite(&header->qttCompacta, sizeof(int), 1, file);
+    char garbage = GARBAGE;
+    for(size_t i = 0; i < 939; i++){
+        fwrite(&garbage, sizeof(char), 1, file);
+    }
 }
 
 //le todos os campos de um registro do arquivo de dados
@@ -87,21 +86,6 @@ int read_register(FILE* file, Data_reg* registro) {
     return 1;
 }
 
-//escreve o cabecalho no arquivo indicado
-void write_header(FILE* file, Header_reg* header) {
-    fseek(file, 0, SEEK_SET);
-
-    fwrite(&header->status, sizeof(char), 1, file);
-    fwrite(&header->topo, sizeof(int), 1, file);
-    fwrite(&header->proxRRN, sizeof(int), 1, file);
-    fwrite(&header->nroRegRem, sizeof(int), 1, file);
-    fwrite(&header->nroPagDisco, sizeof(int), 1, file);
-    fwrite(&header->qttCompacta, sizeof(int), 1, file);
-    char garbage = GARBAGE;
-    for(size_t i = 0; i < 939; i++){
-        fwrite(&garbage, sizeof(char), 1, file);
-    }
-}
 
 //escreve os campos de registro e seu lixo no arquivo indicado
 void write_register(FILE* file_write, Data_reg* registro) {

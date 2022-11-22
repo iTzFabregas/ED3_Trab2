@@ -15,7 +15,7 @@ int main(void) {
     //variaveis p/ entrada do teclado
     int command;
     char data_file1[30];
-    char data_file2[30];
+    //char data_file2[30];
     char index_file[30];
     int num_suarches;
 
@@ -32,13 +32,14 @@ int main(void) {
             break;
         case 8:
             scanf("%s %s %d", data_file1, index_file, &num_suarches);
-            command8(data_file1, index_file, num_suarches);
+            //command8(data_file1, index_file, num_suarches);
             break;
         case 9:
             scanf("%s %s", data_file1, index_file);
-            /*if(command7(file1, file2)){
-                binarioNaTela(file2);
-            }*/
+            if(command9(data_file1, index_file)){
+                binarioNaTela(data_file1);
+                binarioNaTela(index_file);
+            }
             break;
         case 10:
             
