@@ -7,15 +7,13 @@ Pedro Lucas Castro de Andrade - 11212289 - participacao: 100%
 
 #include "insertion.h"
 #include "search.h"
-//#include "command9.h"
-//#include "command10.h"
 #include "funcoesFornecidas.h"
 
 int main(void) {
     //variaveis p/ entrada do teclado
     int command;
     char data_file1[30];
-    //char data_file2[30];
+    char data_file2[30];
     char index_file[30];
     int num_suarches;
 
@@ -42,7 +40,8 @@ int main(void) {
             }
             break;
         case 10:
-            
+            scanf("%s %s %*s %*s %s", data_file1, data_file2, index_file);
+            command10(data_file1, data_file2, index_file);
             break;
     }
 }

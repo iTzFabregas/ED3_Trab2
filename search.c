@@ -154,7 +154,7 @@ void command8(char* data_name, char* index_name, int num_searches){
                 }
             }
 
-        } else { //busca pela funcionalidade 3
+        } else { //busca direto no arquivo de dados
             //percorre todos os registros de dados
             for (size_t j = 0; j < header->proxRRN; j++) {
                 fseek(data_file, LEN_DISC_PAG + (j*LEN_REG), SEEK_SET); 
@@ -236,4 +236,124 @@ void command8(char* data_name, char* index_name, int num_searches){
 
     fclose(data_file);
     fclose(index_file);
+}
+
+void print_two_reg(Data_reg* reg1, Data_reg* reg2){
+    if (reg1->idConecta != -1) { // se for diferente de NULL
+        printf("Identificador do ponto: %d\n", reg1->idConecta);
+    }
+    
+    if (reg1->nomePoPs[0] != DELIMITER && strlen(reg1->nomePoPs) > 0) {  // se for diferente de NULL
+        printf("Nome do ponto: %s\n", reg1->nomePoPs);    
+    } 
+    
+    if (reg1->nomePais[0] != DELIMITER && strlen(reg1->nomePais) > 0) { // se for diferente de NULL
+        printf("Pais de localizacao: %s\n", reg1->nomePais);
+    }
+    
+    if (reg1->siglaPais[0] != GARBAGE && strlen(reg1->siglaPais) > 0) { // se for diferente de NULL
+        printf("Sigla do pais: %s\n", reg1->siglaPais);
+    }
+    
+    if (reg1->idPoPsConectado != -1) { // se for diferente de NULL
+        printf("Identificador do ponto conectado: %d\n", reg1->idPoPsConectado);
+    }
+
+    if (reg2->nomePoPs[0] != DELIMITER && strlen(reg2->nomePoPs) > 0) {  // se for diferente de NULL
+        printf("Nome do ponto conectado: %s\n", reg2->nomePoPs);    
+    }
+
+    if (reg2->nomePais[0] != DELIMITER && strlen(reg2->nomePais) > 0) { // se for diferente de NULL
+        printf("Nome do pais conectado: %s\n", reg2->nomePais);
+    }
+
+    if (reg2->siglaPais[0] != GARBAGE && strlen(reg2->siglaPais) > 0) { // se for diferente de NULL
+        printf("Sigla do pais: %s\n", reg2->siglaPais);
+    }
+    
+    if (reg1->velocidade != -1 && reg1->unidadeMedida != '$') {  // se for diferente de NULL
+        printf("Velocidade de transmissao: %d %cbps\n", reg1->velocidade, reg1->unidadeMedida);
+    }
+    printf("\n");
+}
+
+void command10(char* data_name1, char* data_name2, char* index_name){
+    //abre os arquivos de dados e cria cabecalhos
+    FILE* data_file1 = fopen(data_name1, "rb");
+    Header_reg* header1 = create_header();
+    read_header(header1, data_file1);
+    if(header1->status == '0'){
+        release_header(header1);
+        fclose(data_file1);
+        return;
+    }
+
+    FILE* data_file2 = fopen(data_name2, "rb");
+    Header_reg* header2 = create_header();
+    read_header(header2, data_file2);
+    if(header2->status == '0'){
+        release_header(header1);
+        fclose(data_file1);
+        release_header(header2);
+        fclose(data_file2);
+        return;
+    }
+
+    //abre o arquivo de indice e cria um cabecalho
+    FILE* index_file2 = fopen(index_name, "rb");
+    BTHeader* ind_header = create_btheader();
+    read_btheader(index_file2, ind_header);
+    if(ind_header->status == '0'){
+        release_header(header1);
+        fclose(data_file1);
+        release_header(header2);
+        fclose(data_file2);
+        release_btheader(ind_header);
+        fclose(index_file2);
+        return;
+    }
+
+    //percorre todos os registros de dados
+    int flag = 1;
+    for (int j = 0; j < header1->proxRRN; j++) {
+        Data_reg* reg1 = create_reg();
+        Data_reg* reg2 = create_reg();
+        
+        fseek(data_file1, LEN_DISC_PAG + (j*LEN_REG), SEEK_SET); 
+
+        //regitro removido deve ser desconsiderado
+        if(!read_register(data_file1, reg1)){
+            continue;
+        }
+
+        //verifica a igualdade file1.idPoPsConectado = file2.idConecta
+        int aux1 = reg1->idPoPsConectado;
+        int aux2 = 0;
+        int rrn = search_BT(index_file2, ind_header, aux1, &aux2);
+
+        if(rrn != -1){ //encontrou um registro valido
+            fseek(data_file2, LEN_DISC_PAG + (rrn * LEN_REG), SEEK_SET);
+            if(!read_register(data_file2, reg2)){ //verifica se ha inconsistencia no status do registro2
+                continue;
+            }
+
+            print_two_reg(reg1, reg2);
+            flag = 0;
+        }
+    }
+
+    //se nenhum registro coincidiu com a busca
+    if(flag){
+        printf("Nenhum registro encontrado.\n");
+    }
+
+    //fecha arquvios usados
+    fclose(data_file1);
+    fclose(data_file2);
+    fclose(index_file2);
+
+    //libera memoria usada
+    release_header(header1);
+    release_header(header2);
+    release_btheader(ind_header);
 }
