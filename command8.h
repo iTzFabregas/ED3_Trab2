@@ -1,1 +1,0 @@
-void command8(char* data_file, char* index_file, int num_searches);
