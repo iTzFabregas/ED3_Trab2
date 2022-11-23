@@ -183,8 +183,8 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
 
 int command7(char* data_name, char* index_name) {
 
-    // abrindo arquivo de dados
-    FILE* data_file = fopen(data_name, "rb"); // problema na funçao de abrir arquivo TO DO
+    // ABRINDO OS ARQUIVOS DE DADOS
+    FILE* data_file = fopen(data_name, "rb");
     if (data_file == NULL) {
         printf("Falha no processamento do arquivo.\n");
         return 0;
@@ -198,7 +198,7 @@ int command7(char* data_name, char* index_name) {
         return 0; 
     }
 
-    // abrindo arquivo de indices
+    // ABRINDO OS ARQUIVOS DE INDEXES
     FILE* index_file = fopen(index_name, "wb+");
     if (index_file == NULL) {
         printf("Falha no processamento do arquivo.\n");
@@ -207,7 +207,7 @@ int command7(char* data_name, char* index_name) {
         return 0;
     }    
 
-    // se o arquivo de dados n tiver regsitros, escrever apenas o header no arquivo de indexes
+    // SE O ARQUIVO DE DADOS NÃO TIVER REGISTROS, ESCREVER APENAS O HEADER NO ARQUIVO DE INDEXES 
     if (reg_header->proxRRN == 0) {
         BTHeader* ind_header = create_btheader();
         write_btheader(index_file, ind_header);
@@ -217,23 +217,28 @@ int command7(char* data_name, char* index_name) {
         return 1;
     }
 
-
-    // lendo o primeiro registro dos dados
+   // LENDO OS REGISTROS ATÉ CHEGAR NO PRIMEIRO REGISTRO NÃO DELETADO
     Data_reg* data = malloc(sizeof(Data_reg));
     Key* data_key = create_key();
-    fseek(data_file, LEN_DISC_PAG, SEEK_SET);
-    read_register(data_file, data);
 
-    // colocando esse primeiro registro lido como raiz
+    int i = 0;
+    for (; i < reg_header->proxRRN; i++) {
+        fseek(data_file, LEN_DISC_PAG+(LEN_REG*i), SEEK_SET); 
+        if(read_register(data_file, data)) { // se o registro tiver deletado
+            break;
+        }
+    }
+
+    // COLOCANDO ESSE PRIMEIRO REGISTRO LIDO COMO RAIZ
     Node* node = create_node();
     node->folha = '1'; // nao tem filhos
     node->nroChavesNo = 1; // vai ter uma chave
     node->alturaNo = 1; // ta na parte mais baixo da arvore
     node->RRNdoNo = 0; // primeiro RRN do arquivo de indexes
     node->key[0].search_key = data->idConecta; // chave raiz no momento
-    node->key[0].RRN_key = 0; // RRN dessa chave no arquivo de dados
+    node->key[0].RRN_key = i; // RRN dessa chave no arquivo de dados
 
-    // criando e escrevendo o header do arquivo de index
+    // CRIANDO E ESCREVENDO O HEADER DO ARQUIVIO DE INDEX
     BTHeader* ind_header = create_btheader();
     ind_header->noRaiz = 0;
     ind_header->nroChavesTotal = 1;
@@ -241,11 +246,11 @@ int command7(char* data_name, char* index_name) {
     ind_header->alturaArvore = 1;
     write_btheader(index_file, ind_header);
     write_node(index_file, node);
-    //print_nodes(node);
 
-    for (size_t i = 1; i < reg_header->proxRRN; i++) {
+    i++;
+    for (; i < reg_header->proxRRN; i++) {
         fseek(data_file, LEN_DISC_PAG+(LEN_REG*i), SEEK_SET); 
-        if(!read_register(data_file, data)) { // se o registro tiver deletado
+        if(!read_register(data_file, data)) {
             continue;
         }
         
@@ -259,19 +264,18 @@ int command7(char* data_name, char* index_name) {
             read_btheader(index_file, ind_header);
             Node* new_root = create_node();
             new_root->folha = '0';
-            new_root->nroChavesNo = 1; // vai ter uma chave
-            new_root->alturaNo = ind_header->alturaArvore + 1; // ta 1 de altura acima do ultimo nó
+            new_root->nroChavesNo = 1;
+            new_root->alturaNo = ind_header->alturaArvore + 1;
             new_root->ponteiro[0] = ind_header->noRaiz;
             new_root->key[0] = *promo_key;
             new_root->ponteiro[1] = *right_rrn;
 
-            // escreve a nova raiz
+            // ESCREVE A NOVA RAIZ
             new_root->RRNdoNo = ind_header->RRNproxNo;
             fseek(index_file, LEN_PAGDISC + (ind_header->RRNproxNo*LEN_PAGDISC), SEEK_SET);
             write_node(index_file, new_root);
-            //print_nodes(new_root);
 
-            // update no header com as infos atualizadas
+            // UPDATE NO HEADER COM AS INFORMAÇÕES ATUALIZADAS
             read_btheader(index_file, ind_header);
             ind_header->noRaiz = ind_header->RRNproxNo;
             ind_header->RRNproxNo++;
@@ -281,7 +285,7 @@ int command7(char* data_name, char* index_name) {
             free(new_root);
 
         } else {
-            // le o header e atualiza
+            // LE O HEADER E ATUALIZA
             read_btheader(index_file, ind_header);
             ind_header->nroChavesTotal++;
         }
@@ -292,7 +296,7 @@ int command7(char* data_name, char* index_name) {
 
     }
 
-    // colocando 1 no status e fechando o arquivo
+    // COLOCANDO 1 NO STATUS E ATUALIZANDO
     read_btheader(index_file, ind_header);
     ind_header->status = '1';
     update_btheader(index_file, ind_header);
