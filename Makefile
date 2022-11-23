@@ -8,7 +8,7 @@ clean:
 	rm trab2 *.o *.zip *.bin
 
 copy:
-	cp antes/* ./
+	cp ../antes/* ./
 
 zip:
 	zip trab2.zip Makefile *.c *.o *.h
