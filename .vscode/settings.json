@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "*.c": "c",
-        "register.h": "c",
-        "btree.h": "c",
-        "command7.h": "c"
-    }
-}
