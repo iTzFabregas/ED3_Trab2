@@ -12,6 +12,11 @@ BTHeader* create_btheader(){
     return header;
 }
 
+void release_btheader(BTHeader* header){
+    free(header);
+    header = NULL;
+}
+
 //le os campos do cabecalho
 void read_btheader( FILE* file, BTHeader* header){
     fseek(file, 0, SEEK_SET);
@@ -109,6 +114,11 @@ Node* create_node(){
     }
 
     return node;
+}
+
+void release_node(Node* node){
+    free(node);
+    node = NULL;
 }
 
 void delete_keys(Node* node) {
