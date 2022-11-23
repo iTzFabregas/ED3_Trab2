@@ -57,6 +57,7 @@ typedef struct
 
 // criação do header
 BTHeader* create_btheader();
+void release_btheader(BTHeader* header);
 
 // leitura e escrita do header
 void read_btheader(FILE* file, BTHeader* header);
@@ -72,6 +73,7 @@ Key* create_key();
 
 // criação e manipulação do nó
 Node* create_node();
+void release_node(Node* node);
 void delete_keys(Node* node);
 void print_nodes(Node* node);
 

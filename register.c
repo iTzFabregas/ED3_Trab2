@@ -13,6 +13,11 @@ Header_reg* create_header(){
     return header;
 }
 
+void release_header(Header_reg* header){
+    free(header);
+    header = NULL;
+}
+
 //aloca memoria e inicializa variaveis para o reg de dados
 Data_reg* create_reg(){
     Data_reg* reg = malloc(sizeof(Data_reg));
@@ -20,6 +25,11 @@ Data_reg* create_reg(){
     reg->encadeamento = -1;
 
     return reg;
+}
+
+void release_reg(Data_reg* reg){
+    free(reg);
+    reg = NULL;
 }
 
 //le os campos do cabecalho

@@ -53,9 +53,11 @@ typedef struct{
 
 //criação do header
 Header_reg* create_header();
+void release_header(Header_reg* header);
 
 //aloca memoria e inicializa variaveis para o reg de dados
 Data_reg* create_reg();
+void release_reg(Data_reg* reg);
 
 //leitura e escrita do header
 void read_header(Header_reg* header, FILE* file);
