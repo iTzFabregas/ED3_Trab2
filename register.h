@@ -51,11 +51,11 @@ typedef struct{
     char nomePais[NOMEPAIS_TAM];
 } Data_reg;
 
-//criação do header
+//criação e liberação do header
 Header_reg* create_header();
 void release_header(Header_reg* header);
 
-//aloca memoria e inicializa variaveis para o reg de dados
+//criação e liberação do registro
 Data_reg* create_reg();
 void release_reg(Data_reg* reg);
 
