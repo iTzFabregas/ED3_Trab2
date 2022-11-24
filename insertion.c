@@ -327,7 +327,7 @@ int command9(char* data_name, char* index_name) {
     reg_header->status = '0';
     write_header(data_file,reg_header);
 
-        // ABRE O ARQUIVO DE INDEXES, VERIFICA O STATUS E COLOCA 0 NO STATUS
+    // ABRE O ARQUIVO DE INDEXES, VERIFICA O STATUS E COLOCA 0 NO STATUS
     FILE* index_file = fopen(index_name, "rb+");
     if (index_file == NULL) {
         printf("Falha no processamento do arquivo.\n");
