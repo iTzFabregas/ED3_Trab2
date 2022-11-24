@@ -18,6 +18,7 @@ void shift_keys_node(Node* node, int pos) {
 
 void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int* right_rrn, Node* new_node) {
     
+    // CRIA UMA LISTA DE CHAVES E PONTEIROS QUE CABE UM A MAIS QUE O NO
     Key_list* keys = malloc(sizeof(Key_list));
     for (size_t i = 0; i < 5; i++)
     {
@@ -29,7 +30,8 @@ void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int
     keys->key[4] = *(local_key);
     keys->ponteiro[5] = *(local_right_rrn);
     
-
+    
+    // ORDENA ESSA LISTA COM A NOVA CHAVE NELA
     for (int j = 0; j < 6; j++)
     {
         if (local_key->search_key <= keys->key[j].search_key) {
@@ -50,13 +52,14 @@ void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int
         }
     }
 
-    *promo_key = keys->key[2]; // elemento central do array
+    // ELEMENTO CENTRAL DESSA LISTA SERÁ O PROMO
+    *promo_key = keys->key[2]; 
 
     new_node->alturaNo = node->alturaNo;
     new_node->folha = node->folha;
     new_node->nroChavesNo = 2;
 
-    // coloca os valores dps do centro para a nova pagina
+    // COLOCA OS VALORES DEPOIS DO CENTRO NO NOVO NO
     for (size_t i = 0; i < 3; i++)
     {
         new_node->ponteiro[i] = keys->ponteiro[i+3];
@@ -66,7 +69,7 @@ void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int
     }
 
 
-    //deleta os valores e coloca os novos valores na pagina antiga
+    // DELETA TODOS OS VALORES E COLOCA OS VALORES ANTES DO CENTRO NO NO ATUAL
     delete_keys(node);
     node->nroChavesNo = 2;
     for (size_t i = 0; i < 3; i++)
@@ -83,7 +86,7 @@ void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int
 
 int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn) {
 
-    // como esse nó nao existe, a chave deverá ficar no nó anterior
+    // SE ESSE RRN NAO EXISITR, RETORNA A CHAVE ATUAL COMO PROMO
     if (current_rrn == -1) {
         *promo_key = *key;
         *right_rrn = -1;
@@ -94,6 +97,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
         fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
         read_node(file, node);
 
+        // ACHA A POSIÇÃO CERTA DA CHAVE NESSE NO
         int pos;
         for (size_t i = 0; i < 4; i++)
         {
@@ -114,6 +118,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
         int* local_right_rrn = malloc(sizeof(int));
         int return_value = insert(file, node->ponteiro[pos], key, local_promo, local_right_rrn);
 
+        // SE NAO PRECISAR DE PROMOÇÃO OU TIVER RETORNADO ERRO, SAIR DA RECURSSÃO
         if (return_value == EXIT || return_value == NO_PROMOTION) {
             free(node);
             free(local_promo);
@@ -121,6 +126,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
 
             return return_value;
 
+        // SE TIVER ESPAÇO NESSE NO, COLOCAR A CHAVE EM SEU LUGAR CERTO
         } else if (node->nroChavesNo < 4) {
 
             if (node->key[pos].search_key == -1) {
@@ -142,25 +148,26 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
 
             return NO_PROMOTION;
 
+        // SE NÃO TIVER ESPAÇO NESSE NO, FAZER SPLIT E COLOCAR A CHAVE
         } else {
             Node* new_node = create_node();
 
             split(local_promo, local_right_rrn, node, promo_key, right_rrn, new_node);
             
-            // escrevendo o node
+            // ESCREVENDO O NO
             fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
             write_node(file, node);
 
-            // verifica qual o proximo rrn livre
+            // VERIFICA QUAL PROX RRN LIVRE
             BTHeader* header = create_btheader();
             read_btheader(file, header);
 
-            // escreve o novo no
+            // ESCREVENDO O NOVO NO
             new_node->RRNdoNo = header->RRNproxNo;
             fseek(file, LEN_PAGDISC + (header->RRNproxNo*LEN_PAGDISC), SEEK_SET);
             write_node(file, new_node);
 
-            // update no header com o novo proximo rrn
+            // UPDATE NO HEADER COM AS INFOS ATUALIZADAS
             *right_rrn = header->RRNproxNo;
             header->RRNproxNo++;
             update_btheader(file, header);
