@@ -135,7 +135,6 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
             node->nroChavesNo++;
             fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
             write_node(file, node);
-            //print_nodes(node);
 
             free(node);
             free(local_promo);
@@ -145,13 +144,12 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
 
         } else {
             Node* new_node = create_node();
-            //print_nodes(node);
+
             split(local_promo, local_right_rrn, node, promo_key, right_rrn, new_node);
             
             // escrevendo o node
             fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
             write_node(file, node);
-            //print_nodes(node);
 
             // verifica qual o proximo rrn livre
             BTHeader* header = create_btheader();
@@ -161,7 +159,6 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
             new_node->RRNdoNo = header->RRNproxNo;
             fseek(file, LEN_PAGDISC + (header->RRNproxNo*LEN_PAGDISC), SEEK_SET);
             write_node(file, new_node);
-            //print_nodes(new_node);
 
             // update no header com o novo proximo rrn
             *right_rrn = header->RRNproxNo;
@@ -315,7 +312,7 @@ int command7(char* data_name, char* index_name) {
 
 int command9(char* data_name, char* index_name) {
 
-    // abre o arquivo de dados, verifica o status e coloca 0 no status
+    // ABRE O ARQUIVO DE DADOS, VERIFICA O STATUS E COLOCA 0 NO STATUS
     FILE* data_file = fopen(data_name, "rb+");
     if (data_file == NULL) {
         printf("Falha no processamento do arquivo.\n");
@@ -330,7 +327,7 @@ int command9(char* data_name, char* index_name) {
     reg_header->status = '0';
     write_header(data_file,reg_header);
 
-    // abre o arquivo de indexes, verifica o status e coloca 0 no status
+        // ABRE O ARQUIVO DE INDEXES, VERIFICA O STATUS E COLOCA 0 NO STATUS
     FILE* index_file = fopen(index_name, "rb+");
     if (index_file == NULL) {
         printf("Falha no processamento do arquivo.\n");
@@ -345,7 +342,7 @@ int command9(char* data_name, char* index_name) {
     ind_header->status = '0';
     update_btheader(index_file, ind_header);
 
-    // verifica o numero de inserções
+    // VERIFICA O NUMERO DE INSERÇÕES
     int n;
     scanf("%d", &n);
 
@@ -354,11 +351,11 @@ int command9(char* data_name, char* index_name) {
     char str[50];
     for (size_t i = 0; i < n; i++) {
 
-        // le os headers
+        // LE OS HEADERS
         read_header(reg_header, data_file);
         read_btheader(index_file, ind_header);
 
-        // lendo os inputs do teclado
+        // LE TODOS OS INPUTS DO TECLADO DESSA INSERÇÃO
         scanf("%s ", str);
         if(strcmp(str, "NULO") != 0) {
             new_reg->idConecta = atoi(str);
@@ -385,38 +382,38 @@ int command9(char* data_name, char* index_name) {
             new_reg->velocidade = -1;
         }
         
-        // criando a chave para o arquivo de indexes
+        // CRIANDO A CHAVE PARA O ARQUIVO DE INDEXES
         new_key->search_key = new_reg->idConecta;
         new_key->RRN_key = reg_header->proxRRN;
 
-        // pula para o fim do arquivo de dados e escreve o novo registro e atualiza o header  
+        // PULA PARA O PROXRRN DO ARQUIVO DE DADOS E ESCREVE O NOVO RESGISTRO E ATUALIZA O HEADER
         fseek(data_file, LEN_DISC_PAG+(reg_header->proxRRN*LEN_REG), SEEK_SET);
         write_register(data_file, new_reg);
         reg_header->proxRRN++;
         write_header(data_file, reg_header);
 
 
-        // faz a inserção da chave no arquivo de indexes
+        // FAZ A INSERÇÃO DA CHAVE NO ARQUIVO DE INDEXES
         Key* promo_key = create_key();
         int* right_rrn = malloc(sizeof(int));
         if (insert(index_file, ind_header->noRaiz, new_key, promo_key, right_rrn) == DO_PROMOTION) {
             Node* new_root = create_node();
             new_root->folha = '0';
-            new_root->nroChavesNo = 1; // vai ter uma chave
-            new_root->alturaNo = ind_header->alturaArvore; // ta 1 de altura acima do ultimo nó
+            new_root->nroChavesNo = 1;
+            new_root->alturaNo = ind_header->alturaArvore;
             new_root->ponteiro[0] = ind_header->noRaiz;
             new_root->key[0] = *promo_key;
             new_root->ponteiro[1] = *right_rrn;
 
-            // verifica qual o proximo rrn livre
+            // VERIFICA QUAL O PROXIMO RRN LIVRE
             read_btheader(index_file, ind_header);
 
-            // escreve a nova raiz
+            // ESCREVE A NOVA RAIZ
             new_root->RRNdoNo = ind_header->RRNproxNo;
             fseek(index_file, LEN_PAGDISC + (ind_header->RRNproxNo*LEN_PAGDISC), SEEK_SET);
             write_node(index_file, new_root);
 
-            // update no header com o novo proximo rrn
+            // UPDATE NO HJEADER COM O NOVO PROXIMO RRN
             read_btheader(index_file, ind_header);
             ind_header->noRaiz = ind_header->RRNproxNo;
             ind_header->RRNproxNo++;
@@ -434,7 +431,7 @@ int command9(char* data_name, char* index_name) {
         free(right_rrn);
     }
 
-    // atualiza o status dos arquivos  
+    // ATUALIZA O STATUS DOS ARQUIVOS
     reg_header->status = '1';
     write_header(data_file, reg_header);
     ind_header->status = '1';
