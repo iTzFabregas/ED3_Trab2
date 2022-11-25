@@ -251,6 +251,7 @@ int command7(char* data_name, char* index_name) {
     write_btheader(index_file, ind_header);
     write_node(index_file, node);
 
+    // LE O ARQUIVO DE REGISTRO ATE LER UM REGISTRO NAO REMOVIDO
     i++;
     for (; i < reg_header->proxRRN; i++) {
         fseek(data_file, LEN_DISC_PAG+(LEN_REG*i), SEEK_SET); 
