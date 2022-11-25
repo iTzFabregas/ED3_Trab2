@@ -391,14 +391,28 @@ int command9(char* data_name, char* index_name) {
         
         // CRIANDO A CHAVE PARA O ARQUIVO DE INDEXES
         new_key->search_key = new_reg->idConecta;
-        new_key->RRN_key = reg_header->proxRRN;
 
-        // PULA PARA O PROXRRN DO ARQUIVO DE DADOS E ESCREVE O NOVO RESGISTRO E ATUALIZA O HEADER
-        fseek(data_file, LEN_DISC_PAG+(reg_header->proxRRN*LEN_REG), SEEK_SET);
-        write_register(data_file, new_reg);
-        reg_header->proxRRN++;
-        write_header(data_file, reg_header);
-
+       
+        // INSERE NO FIM DO ARQUIVO 
+        if (reg_header->nroRegRem == 0) {
+            new_key->RRN_key = reg_header->proxRRN;
+            // PULA PARA O PROXRRN DO ARQUIVO DE DADOS E ESCREVE O NOVO RESGISTRO E ATUALIZA O HEADER
+            fseek(data_file, LEN_DISC_PAG+(reg_header->proxRRN*LEN_REG), SEEK_SET);
+            write_register(data_file, new_reg);
+            reg_header->proxRRN++;
+            write_header(data_file, reg_header);
+        // SE TIVER ESPAÇO NO MEIO DO ARQUIVO PARA INSERÇÃO
+        } else {
+            new_key->RRN_key = reg_header->topo;
+            fseek(data_file, LEN_DISC_PAG+(reg_header->topo*LEN_REG) + 1, SEEK_SET);
+            int new_top;
+            fread(&new_top, ENCADEAMENTO_TAM, 1, data_file);
+            fseek(data_file, LEN_DISC_PAG+(reg_header->topo*LEN_REG), SEEK_SET);
+            write_register(data_file, new_reg);
+            reg_header->topo = new_top;
+            reg_header->nroRegRem--;
+            write_header(data_file, reg_header);
+        }
 
         // FAZ A INSERÇÃO DA CHAVE NO ARQUIVO DE INDEXES
         Key* promo_key = create_key();
