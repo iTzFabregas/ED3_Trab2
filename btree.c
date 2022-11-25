@@ -12,6 +12,7 @@ BTHeader* create_btheader(){
     return header;
 }
 
+//libera memoria usada
 void release_btheader(BTHeader* header){
     free(header);
     header = NULL;
@@ -46,6 +47,7 @@ void write_btheader(FILE* file, BTHeader* header) {
     }
 }
 
+//atualiza o cabecalho, noa ha necessidade de mexer no lixo
 void update_btheader(FILE* file, BTHeader* header) {
     fseek(file, 0, SEEK_SET);
 
@@ -56,6 +58,7 @@ void update_btheader(FILE* file, BTHeader* header) {
     fwrite(&header->RRNproxNo, sizeof(int), 1, file);
 }
 
+//le os campos de um no
 void read_node(FILE* file, Node* node) {
     fread(&node->folha, LEN_FOLHA, 1, file);
     fread(&node->nroChavesNo, LEN_NROCHAVESNO, 1, file);
@@ -71,6 +74,7 @@ void read_node(FILE* file, Node* node) {
     }
 }
 
+//escreve os campos do no em um arquivo binario
 void write_node(FILE* file, Node* node) {
     fwrite(&node->folha, LEN_FOLHA, 1, file);
     fwrite(&node->nroChavesNo, LEN_NROCHAVESNO, 1, file);
@@ -87,6 +91,7 @@ void write_node(FILE* file, Node* node) {
     
 }
 
+//aloca memoria e inicializa valores de uma chave
 Key* create_key(){
 
     Key* key = malloc(sizeof(Key));
@@ -96,7 +101,7 @@ Key* create_key(){
     return key;
 }
 
-
+//aloca memoria e inicializa valores de um no
 Node* create_node(){
     Node* node= malloc(sizeof(Node));
     node->nroChavesNo = 0;
@@ -116,11 +121,13 @@ Node* create_node(){
     return node;
 }
 
+//libera memoria usada em um no
 void release_node(Node* node){
     free(node);
     node = NULL;
 }
 
+//deleta as chaves de um no 
 void delete_keys(Node* node) {
 
     node->nroChavesNo = 0;
@@ -134,6 +141,7 @@ void delete_keys(Node* node) {
     }
 }
 
+//imprime no terminal os campos de um no
 void print_nodes(Node* node) {
 
     printf("Folha %c\n", node->folha);

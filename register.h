@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-//macros sobre o arquivo
+//macros sobre o arquivo de dados
 #define LEN_DISC_PAG 960
 #define LEN_REG 64
 #define DELIMITER '|'
@@ -67,5 +67,11 @@ void write_header(FILE* file, Header_reg* header);
 int read_register(FILE* file, Data_reg* reg);
 void write_register(FILE* file_write, Data_reg* registro);
 void printar_registros(Data_reg *registro);
+
+//mensagem de erro para erro ao tentar abrir um arquivo
+void error_file();
+
+//mensagem de erro para erro p/ registro inexistente
+void error_reg();
 
 #endif

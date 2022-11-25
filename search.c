@@ -1,8 +1,6 @@
-#include<stdio.h>
 #include<string.h>
 
 #include "search.h"
-#include "btree.h"
 #include "register.h"
 #include "funcoesFornecidas.h"
 
@@ -40,8 +38,9 @@ int receive_inputs(char fieldname[][20], char field[][20], int type_field[], int
     return 1;
 }
 
+//execucao recursiva da busca em arvore-B
 int recursive_search_BT(FILE* index_file, int rrn, int key_value, int* num_pag_disc){
-    fseek(index_file, ((rrn + 1) * LEN_PAGDISC), SEEK_SET); //vai p/ pagina indicada
+    fseek(index_file, ((rrn + 1) * LEN_BT_DISC_PAG), SEEK_SET); //vai p/ pagina indicada
 
     Node* node = create_node();
     read_node(index_file, node);
@@ -60,7 +59,7 @@ int recursive_search_BT(FILE* index_file, int rrn, int key_value, int* num_pag_d
     }
 
     int aux = node->ponteiro[i];
-    //release_node(node);mAK
+    release_node(node);
     if(aux == -1){ //nao ha filho na direita
         return -1; //elemento nao esta presente na arvore
     }
@@ -68,12 +67,13 @@ int recursive_search_BT(FILE* index_file, int rrn, int key_value, int* num_pag_d
     return recursive_search_BT(index_file, aux, key_value, num_pag_disc);
 }
 
+//executa uma busca em arvore-B
 int search_BT(FILE* index_file, BTHeader* ind_header, int key_value, int* num_pag_disc){
     //primeiro busca na raiz
     if(ind_header->noRaiz == -1){ //arvore vazia
         return -1;
     }
-    fseek(index_file, ((ind_header->noRaiz + 1) * LEN_PAGDISC), SEEK_SET); //vai p/ posicao do no raiz
+    fseek(index_file, ((ind_header->noRaiz + 1) * LEN_BT_DISC_PAG), SEEK_SET); //vai p/ posicao do no raiz
     Node* root_node = create_node();
     read_node(index_file, root_node);
     (*num_pag_disc)++;
@@ -91,13 +91,14 @@ int search_BT(FILE* index_file, BTHeader* ind_header, int key_value, int* num_pa
     }
 
     int aux = root_node->ponteiro[i];
-    //release_node(root_node);
+    release_node(root_node);
     if(aux == -1){ //nao ha filho na direita
         return -1; //elemento nao esta presente na arvore
     }
     return recursive_search_BT(index_file, aux, key_value, num_pag_disc);
 }
 
+//funcao que executa o comando 8
 void command8(char* data_name, char* index_name, int num_searches){
     //variaveis para guardar os inputs
     char fieldname[num_searches][20];
@@ -110,6 +111,10 @@ void command8(char* data_name, char* index_name, int num_searches){
 
     //abre o arquivo de dados e cria um cabecalho
     FILE* data_file = fopen(data_name, "rb");
+    if(data_file == NULL){
+        error_file();
+        return;
+    }
     Header_reg* header = create_header();
     read_header(header, data_file);
     if(header->status == '0'){
@@ -120,6 +125,12 @@ void command8(char* data_name, char* index_name, int num_searches){
 
     //abre o arquivo de indice e cria um cabecalho
     FILE* index_file = fopen(index_name, "rb");
+    if(index_file == NULL){
+        error_file();
+        fclose(data_file);
+        release_header(header);
+        return;
+    }
     BTHeader* ind_header = create_btheader();
     read_btheader(index_file, ind_header);
     if(ind_header->status == '0'){
@@ -221,7 +232,8 @@ void command8(char* data_name, char* index_name, int num_searches){
 
         //se nenhum registro coincidiu com a busca
         if(flag){
-            printf("Nenhum registro encontrado.\n");
+            error_reg();
+            printf("\n");
         }
         
         printf("Numero de paginas de disco: %d\n\n", num_pag_disc);
@@ -231,13 +243,16 @@ void command8(char* data_name, char* index_name, int num_searches){
         fseek(data_file, 960, SEEK_SET);
     }
 
+    //libera memoria usada
     release_header(header);
     release_btheader(ind_header);
 
+    //fecha arquivos usados
     fclose(data_file);
     fclose(index_file);
 }
 
+//imprime no terminal os campos de dois registros de dados
 void print_two_reg(Data_reg* reg1, Data_reg* reg2){
     if (reg1->idConecta != -1) { // se for diferente de NULL
         printf("Identificador do ponto: %d\n", reg1->idConecta);
@@ -277,9 +292,14 @@ void print_two_reg(Data_reg* reg1, Data_reg* reg2){
     printf("\n");
 }
 
+//funcao que executa o comando 10
 void command10(char* data_name1, char* data_name2, char* index_name){
     //abre os arquivos de dados e cria cabecalhos
     FILE* data_file1 = fopen(data_name1, "rb");
+    if(data_file1 == NULL){
+        error_file();
+        return;
+    }
     Header_reg* header1 = create_header();
     read_header(header1, data_file1);
     if(header1->status == '0'){
@@ -289,6 +309,12 @@ void command10(char* data_name1, char* data_name2, char* index_name){
     }
 
     FILE* data_file2 = fopen(data_name2, "rb");
+    if(data_file2 == NULL){
+        error_file();
+        fclose(data_file1);
+        release_header(header1);
+        return;
+    }
     Header_reg* header2 = create_header();
     read_header(header2, data_file2);
     if(header2->status == '0'){
@@ -301,6 +327,14 @@ void command10(char* data_name1, char* data_name2, char* index_name){
 
     //abre o arquivo de indice e cria um cabecalho
     FILE* index_file2 = fopen(index_name, "rb");
+    if(index_file2 == NULL){
+        error_file();
+        release_header(header1);
+        fclose(data_file1);
+        release_header(header2);
+        fclose(data_file2);
+        return;
+    }
     BTHeader* ind_header = create_btheader();
     read_btheader(index_file2, ind_header);
     if(ind_header->status == '0'){
@@ -344,7 +378,7 @@ void command10(char* data_name1, char* data_name2, char* index_name){
 
     //se nenhum registro coincidiu com a busca
     if(flag){
-        printf("Nenhum registro encontrado.\n");
+        error_reg();
     }
 
     //fecha arquvios usados

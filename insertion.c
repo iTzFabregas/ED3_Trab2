@@ -1,6 +1,6 @@
 #include "insertion.h"
 
-
+//faz as chaves e os ponteiros pularem uma casa para a direita
 void shift_keys_node(Node* node, int pos) {
 
     for (int i = 3; i >= pos; i--) {
@@ -15,7 +15,7 @@ void shift_keys_node(Node* node, int pos) {
     }  
 }
 
-
+//split em insercao na arvore-B
 void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int* right_rrn, Node* new_node) {
     
     // CRIA UMA LISTA DE CHAVES E PONTEIROS QUE CABE UM A MAIS QUE O NO
@@ -83,7 +83,7 @@ void split(Key* local_key, int* local_right_rrn, Node* node, Key* promo_key, int
         free(keys);
 }
 
-
+//insercao de um novo indice na arvore-B
 int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn) {
 
     // SE ESSE RRN NAO EXISITR, RETORNA A CHAVE ATUAL COMO PROMO
@@ -94,7 +94,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
         
     } else {
         Node* node = create_node();
-        fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
+        fseek(file, LEN_BT_DISC_PAG + (current_rrn*LEN_BT_DISC_PAG), SEEK_SET);
         read_node(file, node);
 
         // ACHA A POSIÇÃO CERTA DA CHAVE NESSE NO
@@ -139,7 +139,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
             }            
             
             node->nroChavesNo++;
-            fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
+            fseek(file, LEN_BT_DISC_PAG + (current_rrn*LEN_BT_DISC_PAG), SEEK_SET);
             write_node(file, node);
 
             free(node);
@@ -155,7 +155,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
             split(local_promo, local_right_rrn, node, promo_key, right_rrn, new_node);
             
             // ESCREVENDO O NO
-            fseek(file, LEN_PAGDISC + (current_rrn*LEN_PAGDISC), SEEK_SET);
+            fseek(file, LEN_BT_DISC_PAG + (current_rrn*LEN_BT_DISC_PAG), SEEK_SET);
             write_node(file, node);
 
             // VERIFICA QUAL PROX RRN LIVRE
@@ -164,7 +164,7 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
 
             // ESCREVENDO O NOVO NO
             new_node->RRNdoNo = header->RRNproxNo;
-            fseek(file, LEN_PAGDISC + (header->RRNproxNo*LEN_PAGDISC), SEEK_SET);
+            fseek(file, LEN_BT_DISC_PAG + (header->RRNproxNo*LEN_BT_DISC_PAG), SEEK_SET);
             write_node(file, new_node);
 
             // UPDATE NO HEADER COM AS INFOS ATUALIZADAS
@@ -184,19 +184,19 @@ int insert(FILE* file, int current_rrn, Key* key, Key* promo_key, int* right_rrn
     }
 }
 
-
+//funcao que executa o comando 7
 int command7(char* data_name, char* index_name) {
 
     // ABRINDO OS ARQUIVOS DE DADOS
     FILE* data_file = fopen(data_name, "rb");
     if (data_file == NULL) {
-        printf("Falha no processamento do arquivo.\n");
+        error_file();
         return 0;
     }
     Header_reg* reg_header = malloc(sizeof(Header_reg));
     read_header(reg_header, data_file);
     if (reg_header->status == '0') {
-        printf("Falha no processamento do arquivo.\n");
+        error_file();
         free(reg_header);
         fclose(data_file);
         return 0; 
@@ -205,7 +205,7 @@ int command7(char* data_name, char* index_name) {
     // ABRINDO OS ARQUIVOS DE INDEXES
     FILE* index_file = fopen(index_name, "wb+");
     if (index_file == NULL) {
-        printf("Falha no processamento do arquivo.\n");
+        error_file();
         free(reg_header);
         fclose(data_file);
         return 0;
@@ -277,7 +277,7 @@ int command7(char* data_name, char* index_name) {
 
             // ESCREVE A NOVA RAIZ
             new_root->RRNdoNo = ind_header->RRNproxNo;
-            fseek(index_file, LEN_PAGDISC + (ind_header->RRNproxNo*LEN_PAGDISC), SEEK_SET);
+            fseek(index_file, LEN_BT_DISC_PAG + (ind_header->RRNproxNo*LEN_BT_DISC_PAG), SEEK_SET);
             write_node(index_file, new_root);
 
             // UPDATE NO HEADER COM AS INFORMAÇÕES ATUALIZADAS
@@ -318,18 +318,19 @@ int command7(char* data_name, char* index_name) {
     return 1;
 }
 
+//funcao que executa o comando 9
 int command9(char* data_name, char* index_name) {
 
     // ABRE O ARQUIVO DE DADOS, VERIFICA O STATUS E COLOCA 0 NO STATUS
     FILE* data_file = fopen(data_name, "rb+");
     if (data_file == NULL) {
-        printf("Falha no processamento do arquivo.\n");
+        error_file();
         return 0;
     }
     Header_reg* reg_header = malloc(sizeof(Header_reg));
     read_header(reg_header, data_file);
     if (reg_header->status == '0') {
-        printf("Falha no processamento do arquivo.\n");
+        error_file();
         return 0;
     }
     reg_header->status = '0';
@@ -338,13 +339,13 @@ int command9(char* data_name, char* index_name) {
     // ABRE O ARQUIVO DE INDEXES, VERIFICA O STATUS E COLOCA 0 NO STATUS
     FILE* index_file = fopen(index_name, "rb+");
     if (index_file == NULL) {
-        printf("Falha no processamento do arquivo.\n");
+        error_file();
         return 0;
     }
     BTHeader* ind_header = malloc(sizeof(BTHeader));
     read_btheader(index_file, ind_header);
     if (ind_header->status == '0') {
-        printf("Falha no processamento do arquivo.\n");
+        error_file();
         return 0;
     }
     ind_header->status = '0';
@@ -432,7 +433,7 @@ int command9(char* data_name, char* index_name) {
 
             // ESCREVE A NOVA RAIZ
             new_root->RRNdoNo = ind_header->RRNproxNo;
-            fseek(index_file, LEN_PAGDISC + (ind_header->RRNproxNo*LEN_PAGDISC), SEEK_SET);
+            fseek(index_file, LEN_BT_DISC_PAG + (ind_header->RRNproxNo*LEN_BT_DISC_PAG), SEEK_SET);
             write_node(index_file, new_root);
 
             // UPDATE NO HJEADER COM O NOVO PROXIMO RRN
@@ -459,10 +460,13 @@ int command9(char* data_name, char* index_name) {
     ind_header->status = '1';
     update_btheader(index_file, ind_header);
 
+    //libera memoria usada
     free(reg_header);
     free(ind_header);
     free(new_reg);
     free(new_key);
+
+    //fecha arquivos abertos
     fclose(data_file);
     fclose(index_file);
 

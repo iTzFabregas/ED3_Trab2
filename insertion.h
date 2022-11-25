@@ -11,7 +11,7 @@
  * a partir de uma posição especificada
  * 
  * @param node no nas quais as chaves iram dar o shift
- * @param j posição especificada
+ * @param pos posição especificada
  */
 void shift_keys_node(Node* node, int pos);
 

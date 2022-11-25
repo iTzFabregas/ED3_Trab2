@@ -6,13 +6,14 @@
 
 #include "register.h"
 
+//macros importantes para as funcoes de insercao
 #define DO_PROMOTION 2
 #define NO_PROMOTION 1
 #define EXIT 0
 
 
 //defines de tamanhos bastante usados
-#define LEN_PAGDISC 65
+#define LEN_BT_DISC_PAG 65
 #define LEN_FOLHA 1
 #define LEN_NROCHAVESNO 4
 #define LEN_ALTURANO 4
@@ -55,7 +56,7 @@ typedef struct
 } Key_list;
 
 
-// criação do header
+// criacao e destruicao do header
 BTHeader* create_btheader();
 void release_btheader(BTHeader* header);
 
@@ -71,7 +72,7 @@ void write_node(FILE* file, Node* node);
 // criação da chave
 Key* create_key();
 
-// criação e manipulação do nó
+// criacao, destruicao e manipulacao do no
 Node* create_node();
 void release_node(Node* node);
 void delete_keys(Node* node);

@@ -13,6 +13,7 @@ Header_reg* create_header(){
     return header;
 }
 
+//libera memoria usada
 void release_header(Header_reg* header){
     free(header);
     header = NULL;
@@ -27,6 +28,7 @@ Data_reg* create_reg(){
     return reg;
 }
 
+//libera memoria usada
 void release_reg(Data_reg* reg){
     free(reg);
     reg = NULL;
@@ -166,4 +168,14 @@ void printar_registros(Data_reg *registro){
         printf("Velocidade de transmissao: %d %cbps\n", registro->velocidade, registro->unidadeMedida);
     }
     printf("\n");
+}
+
+//mensagem de erro para erro ao tentar abrir um arquivo
+void error_file(){
+    printf("Falha no processamento do arquivo.\n");
+}
+
+//mensagem de erro para erro p/ registro inexistente
+void error_reg(){
+    printf("Registro inexistente.\n\n");
 }
