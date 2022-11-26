@@ -372,8 +372,13 @@ int command9(char* data_name, char* index_name) {
             new_reg->idConecta = -1;
         }
         scan_quote_string(new_reg->nomePoPs);
-        scan_quote_string(new_reg->nomePais);   
+        
+        scan_quote_string(new_reg->nomePais);
+
         scan_quote_string(new_reg->siglaPais);
+        if (strcmp(new_reg->siglaPais, "") == 0) {
+            strcpy(new_reg->siglaPais, "$$");
+        }
 
         scanf(" %s", str);
         if(strcmp(str, "NULO") != 0) {
@@ -383,6 +388,9 @@ int command9(char* data_name, char* index_name) {
         }
 
         scan_quote_string(&new_reg->unidadeMedida);
+        if(new_reg->unidadeMedida == '\0') {
+            new_reg->unidadeMedida = '$';
+        }   
 
         scanf(" %s", str);
         if(strcmp(str, "NULO") != 0) {
@@ -390,7 +398,7 @@ int command9(char* data_name, char* index_name) {
         } else {
             new_reg->velocidade = -1;
         }
-        
+
         // CRIANDO A CHAVE PARA O ARQUIVO DE INDEXES
         new_key->search_key = new_reg->idConecta;
 
