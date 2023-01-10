@@ -5,7 +5,7 @@
 árvore-B.</p>
 <p>O tamanho da página de disco adotado foi de 73 <i>bytes</i>. A estrutura da árvore-B conta com registro de cabeçalho
 e registro de dados. A ordem da árvore-B é 5. Portanto, um nó (página) tem 4 chaves de busca e 5 descendentes.</p>
-<p>O programa oferece as seguintes funcionalidades:</p></br>
+<p>O programa oferece as seguintes funcionalidades:</p>
 
 <li>7) Criar um arquivo de índice árvore-B que indexa a chave de busca definida sobre um
 arquivo de dados de entrada já existente. Registros
