@@ -65,4 +65,4 @@ satisfazem à condição de junção Acampo1 = Bcampo1.</br>
 
 <p>Para compilar os códigos, use o comando <code>make all</code></p>
 <p>Para executar o programa, use o comando <code>make run</code></p>
-<p>Para testar o programa, pode-se usar os arquivos <strong>binario1.bin</strong> e <strong>indice4.bin</strong></p>
+<p>Para testar o programa, pode-se usar os arquivos da pasta <strong>tests</strong>, lembrando que alguns arquivos podem ser alterados</p>
